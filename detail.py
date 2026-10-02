@@ -4,7 +4,11 @@ import time
 
 from playwright.sync_api import Page, sync_playwright
 
-from detail_repository import get_active_purchases_for_detail, save_auction_detail
+from detail_repository import (
+    get_active_purchases_for_detail,
+    get_purchases_by_numbers,
+    save_auction_detail,
+)
 from detail_schemas import AuctionDetail, DeliveryStage, DeliveryStageRow, SpecificationItem
 from parsing import parse_deadline_from_date_range, parse_quantity, price_to_number
 
@@ -325,6 +329,43 @@ def next_batch(skipped_this_run: set[str]):
         if len(batch) >= QUEUE_BATCH_SIZE:
             break
     return batch
+
+
+def run_for_numbers(auction_numbers: list[str]) -> None:
+    """
+    Снимает спецификации только у переданных закупок.
+    Если одну не удалось прочитать даже со второй попытки — останавливаемся.
+    """
+    purchases = get_purchases_by_numbers(auction_numbers)
+    found_numbers = {purchase.auction_number for purchase in purchases}
+    missing_numbers = [number for number in auction_numbers if number not in found_numbers]
+    if missing_numbers:
+        raise SystemExit(f"В БД нет карточек: {', '.join(missing_numbers)}")
+
+    with sync_playwright() as playwright:
+        browser, page = create_browser(playwright)
+        try:
+            for index, purchase in enumerate(purchases, start=1):
+                if process_purchase(page, purchase, index, save_on_error=False):
+                    pause_between_purchases()
+                    continue
+
+                print("  Перезапускаю браузер и пробую эту закупку ещё раз...")
+                browser.close()
+                cooldown = random.uniform(RESTART_WAIT_MIN_SEC, RESTART_WAIT_MAX_SEC)
+                print(f"  ожидание {cooldown:.1f} сек")
+                time.sleep(cooldown)
+                browser, page = create_browser(playwright)
+
+                if process_purchase(page, purchase, index, save_on_error=False):
+                    pause_between_purchases()
+                    continue
+
+                raise SystemExit(
+                    f"Не удалось снять спецификацию {purchase.auction_number}. Остановка."
+                )
+        finally:
+            browser.close()
 
 
 def main() -> None:

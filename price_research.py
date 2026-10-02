@@ -52,34 +52,30 @@ def parse_response_text(raw: str) -> dict:
     return json.loads(text)
 
 
+def write_batch_files(pairs: list) -> Path:
+    """Пишет data/batch.txt: инструкция Claude и JSON позиций. Этот текст уходит агенту."""
+    prompt = load_prompt_template()
+    input_payload = build_input_payload(pairs)
+    copy_paste = build_claude_copy_paste(prompt, input_payload)
+
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+    BATCH_JSON_PATH.write_text(
+        json.dumps({"prompt": prompt, "input": input_payload}, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+    BATCH_TXT_PATH.write_text(copy_paste, encoding="utf-8")
+    print(f"Батч: {len(input_payload['items'])} позиций, id={input_payload['batch_id']}")
+    return BATCH_TXT_PATH
+
+
 def cmd_export(args: argparse.Namespace) -> None:
     pairs = get_next_pending_items(limit=args.limit)
     if not pairs:
         print("Нет позиций со status=pending (нужен detail_status=done у тендера).")
         return
 
-    prompt = load_prompt_template()
-    input_payload = build_input_payload(pairs)
-    copy_paste = build_claude_copy_paste(prompt, input_payload)
-
-    batch_file = {
-        "prompt": prompt,
-        "input": input_payload,
-    }
-
-    DATA_DIR.mkdir(parents=True, exist_ok=True)
-    BATCH_JSON_PATH.write_text(
-        json.dumps(batch_file, ensure_ascii=False, indent=2),
-        encoding="utf-8",
-    )
-    BATCH_TXT_PATH.write_text(copy_paste, encoding="utf-8")
-
-    print(f"Экспорт: {len(input_payload['items'])} позиций")
-    print(f"batch_id: {input_payload['batch_id']}")
-    print(f"JSON:  {BATCH_JSON_PATH}")
-    print(f"Копируй в Claude целиком: {BATCH_TXT_PATH}")
-    print()
-    print("После ответа сохрани JSON в data/response.json и выполни: python price_research.py import")
+    write_batch_files(pairs)
+    print(f"Текст батча: {BATCH_TXT_PATH}")
 
 
 def cmd_import(args: argparse.Namespace) -> None:

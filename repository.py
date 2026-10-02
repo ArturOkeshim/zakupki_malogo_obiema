@@ -1,6 +1,15 @@
+from sqlalchemy import select
+
 from db.models import PurchaseRecord
 from db.session import SessionLocal
 from schemas import Purchase
+
+
+def existing_auction_numbers() -> set[str]:
+    """Номера закупок, которые уже лежат в таблице purchases."""
+    with SessionLocal() as session:
+        numbers = session.scalars(select(PurchaseRecord.auction_number)).all()
+    return set(numbers)
 
 
 def save_purchases(purchases: list[Purchase]) -> int:

@@ -15,7 +15,10 @@ from price_evaluate import (
 BATCH_SIZE_DEFAULT = 10
 
 
-def get_next_pending_items(limit: int = BATCH_SIZE_DEFAULT) -> list[tuple[AuctionRecord, SpecificationItemRecord]]:
+def get_next_pending_items(
+    limit: int = BATCH_SIZE_DEFAULT,
+    auction_numbers: list[str] | None = None,
+) -> list[tuple[AuctionRecord, SpecificationItemRecord]]:
     """
     Следующие limit позиций со status=pending.
     Сначала тендеры с detail_status=done (свежее detail_scraped_at — раньше в очереди).
@@ -26,6 +29,9 @@ def get_next_pending_items(limit: int = BATCH_SIZE_DEFAULT) -> list[tuple[Auctio
             .where(AuctionRecord.detail_status == "done")
             .order_by(AuctionRecord.detail_scraped_at.desc().nulls_last())
         ).all()
+        if auction_numbers is not None:
+            allowed = set(auction_numbers)
+            auctions = [auction for auction in auctions if auction.auction_number in allowed]
 
         result: list[tuple[AuctionRecord, SpecificationItemRecord]] = []
         # ЗАМЕТКА ДЛЯ ОБУЧЕНИЯ: один тендер может дать несколько позиций в батче.

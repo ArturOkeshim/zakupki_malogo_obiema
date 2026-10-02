@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 
 from playwright.sync_api import Playwright, sync_playwright
 
-from repository import save_purchases
+from repository import existing_auction_numbers, save_purchases
 from schemas import Purchase
 
 FILTERED_PAGE = (
@@ -117,11 +117,16 @@ def scrape_current_page(page, source_page: int) -> list[Purchase]:
     return purchases
 
 
-def run(playwright: Playwright) -> list[Purchase]:
+def run(playwright: Playwright, max_new: int | None = None) -> list[Purchase]:
+    """
+    Собирает карточки со списка закупок.
+    max_new — сколько новых номеров сохранить. Уже лежащие в БД пропускаем.
+    """
     browser = playwright.chromium.launch(headless=True)
     page = browser.new_page()
 
     all_purchases: list[Purchase] = []
+    already_saved = existing_auction_numbers() if max_new is not None else set()
 
     page.goto(set_page_in_url(FILTERED_PAGE, 1))
     total_found = wait_for_list_loaded(page)
@@ -143,7 +148,15 @@ def run(playwright: Playwright) -> list[Purchase]:
             wait_for_list_loaded(page)
 
         page_purchases = scrape_current_page(page, page_number)
-        all_purchases.extend(page_purchases)
+        for purchase in page_purchases:
+            if purchase.auction_number in already_saved:
+                continue
+            all_purchases.append(purchase)
+            already_saved.add(purchase.auction_number)
+            if max_new is not None and len(all_purchases) >= max_new:
+                break
+        if max_new is not None and len(all_purchases) >= max_new:
+            break
 
     browser.close()
 

@@ -32,8 +32,8 @@ from cursor_sdk.errors import CursorSDKError
 
 PROJECT_ROOT = Path(__file__).resolve().parent
 DATA_DIR = PROJECT_ROOT / "data"
-BATCH_TXT_PATH = DATA_DIR / "batch_yandex.txt"
-RESPONSE_JSON_PATH = DATA_DIR / "response_yandex.json"
+BATCH_TXT_PATH = DATA_DIR / "batch.txt"
+RESPONSE_JSON_PATH = DATA_DIR / "response.json"
 ENV_PATH = PROJECT_ROOT / ".env"
 PROXY_PRELOAD_PATH = PROJECT_ROOT / "workaround" / "proxy_preload.cjs"
 
@@ -276,7 +276,7 @@ def cmd_run() -> None:
     if not BATCH_TXT_PATH.is_file():
         raise SystemExit(
             f"Нет файла {BATCH_TXT_PATH}\n"
-            "Сначала: python price_research_yandex.py export"
+            "Сначала соберите батч: его пишет run_pipeline.py"
         )
 
     prompt = BATCH_TXT_PATH.read_text(encoding="utf-8")
@@ -305,7 +305,6 @@ def cmd_run() -> None:
         encoding="utf-8",
     )
     print(f"Ответ записан: {RESPONSE_JSON_PATH}")
-    print("Дальше: python price_research_yandex.py import")
 
 
 def main() -> None:

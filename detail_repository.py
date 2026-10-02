@@ -55,6 +55,29 @@ def get_active_purchases_for_detail() -> list[PurchaseRecord]:
         return result
 
 
+def get_purchases_by_numbers(auction_numbers: list[str]) -> list[PurchaseRecord]:
+    """Последняя сохранённая карточка для каждого номера, в том же порядке, что в списке."""
+    with SessionLocal() as session:
+        purchases = session.scalars(
+            select(PurchaseRecord).where(PurchaseRecord.auction_number.in_(auction_numbers))
+        ).all()
+
+        latest_by_number: dict[str, PurchaseRecord] = {}
+        for purchase in purchases:
+            current = latest_by_number.get(purchase.auction_number)
+            if current is None or purchase.scraped_at > current.scraped_at:
+                latest_by_number[purchase.auction_number] = purchase
+
+        result = []
+        for auction_number in auction_numbers:
+            purchase = latest_by_number.get(auction_number)
+            if purchase is None:
+                continue
+            session.expunge(purchase)
+            result.append(purchase)
+        return result
+
+
 def get_active_purchases_batch(limit: int) -> list[PurchaseRecord]:
     """Первые limit закупок из актуальной очереди (перечитывается из БД при каждом вызове)."""
     return get_active_purchases_for_detail()[:limit]

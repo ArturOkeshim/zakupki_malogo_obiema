@@ -12,7 +12,7 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 
-from openpyxl import Workbook
+from openpyxl import Workbook, load_workbook
 from openpyxl.styles import Font
 from openpyxl.utils import get_column_letter
 from sqlalchemy import select
@@ -85,6 +85,7 @@ def get_latest_purchases_by_auction(session) -> dict[str, PurchaseRecord]:
 
 def load_tenders_for_export(
     source: str,
+    auction_numbers: list[str] | None = None,
 ) -> tuple[list[AuctionRecord], dict[str, list[SpecificationItemRecord]], dict[str, PurchaseRecord]]:
     """
     Тендеры с detail_status=done, у которых хотя бы одна позиция уже оценена (не pending).
@@ -93,6 +94,9 @@ def load_tenders_for_export(
         all_done = session.scalars(
             select(AuctionRecord).where(AuctionRecord.detail_status == "done")
         ).all()
+        if auction_numbers is not None:
+            allowed = set(auction_numbers)
+            all_done = [auction for auction in all_done if auction.auction_number in allowed]
 
         if not all_done:
             return [], {}, {}
@@ -363,6 +367,71 @@ def write_positions_sheet(sheet, auctions, items_by_auction, latest_purchases, s
     autosize_columns(sheet)
 
 
+def _rows_below_header(sheet) -> list[list]:
+    rows = []
+    for row in sheet.iter_rows(min_row=2, values_only=True):
+        rows.append(list(row))
+    return rows
+
+
+def _drop_auction_rows(sheet, auction_numbers: set[str]) -> None:
+    for row_index in range(sheet.max_row, 1, -1):
+        cell_value = sheet.cell(row_index, 1).value
+        if cell_value is not None and str(cell_value) in auction_numbers:
+            sheet.delete_rows(row_index)
+
+
+def _append_rows(sheet, rows: list[list]) -> None:
+    for row in rows:
+        sheet.append(row)
+
+
+def upsert_claude_auctions(output_path: Path, auction_numbers: list[str]) -> int:
+    """
+    Дописывает или обновляет строки этих тендеров в уже существующем Excel.
+    Остальные номера в файле не трогает.
+    """
+    auctions, items_by_auction, latest_purchases = load_tenders_for_export(
+        "claude",
+        auction_numbers,
+    )
+    if not auctions:
+        return 0
+
+    fresh = Workbook()
+    summary_sheet = fresh.active
+    summary_sheet.title = "Тендеры"
+    write_summary_sheet(summary_sheet, auctions, latest_purchases, "claude")
+    positions_sheet = fresh.create_sheet("Позиции")
+    write_positions_sheet(positions_sheet, auctions, items_by_auction, latest_purchases, "claude")
+
+    summary_rows = _rows_below_header(summary_sheet)
+    position_rows = _rows_below_header(positions_sheet)
+    numbers = {auction.auction_number for auction in auctions}
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    if output_path.is_file():
+        workbook = load_workbook(output_path)
+    else:
+        workbook = fresh
+        autosize_columns(workbook["Тендеры"])
+        autosize_columns(workbook["Позиции"])
+        workbook.save(output_path)
+        return len(auctions)
+
+    if "Тендеры" not in workbook.sheetnames or "Позиции" not in workbook.sheetnames:
+        raise SystemExit(f"В {output_path.name} нет листов «Тендеры» и «Позиции»")
+
+    _drop_auction_rows(workbook["Тендеры"], numbers)
+    _append_rows(workbook["Тендеры"], summary_rows)
+    _drop_auction_rows(workbook["Позиции"], numbers)
+    _append_rows(workbook["Позиции"], position_rows)
+    autosize_columns(workbook["Тендеры"])
+    autosize_columns(workbook["Позиции"])
+    workbook.save(output_path)
+    return len(auctions)
+
+
 def export_to_excel(output_path: Path, source: str) -> int:
     auctions, items_by_auction, latest_purchases = load_tenders_for_export(source)
     if not auctions:
@@ -403,10 +472,6 @@ def main() -> None:
 
     if count == 0:
         print("Нет тендеров с оценёнными ценами (хотя бы одна позиция не pending).")
-        if args.source == "yandex":
-            print("Сначала: price_research_yandex import")
-        else:
-            print("Сначала: price_research import")
         return
 
     print(f"Сохранено тендеров: {count}")
