@@ -1,0 +1,139 @@
+{
+  "prompt": "Найди рыночные цены и определи диапазон цен для товаров/услуг из INPUT (позиции тендерной спецификации).\n\nРаботай через браузер (Яндекс). Для каждой позиции в INPUT есть поле yandex_search_url — открывай его (вкладка «Товары», products_mode=1).\n\n=== ТОЧНАЯ МОДЕЛЬ, БЕЗ АНАЛОГОВ ===\nВ карточки и в расчёт диапазона включай только совпадения по модели/артикулу/ключевым параметрам из name.\nПохожие, но другие товары — отсеивай. Не подставляй более дешёвые аналоги.\n\n=== СКОРОСТЬ ===\nНа позицию: 1–2 попытки запроса (products_mode и при необходимости обычный поиск), без долгого обхода десятков сайтов.\nНе нашёл точную модель — status = \"not_found\", это нормально.\n\nПодход:\n1) Открой yandex_search_url или сформируй запрос: артикул/модель в приоритете; иначе ключевые параметры; при пустой выдаче упрости запрос.\n2) Считывай текст страницы (get_page_text): цена, название, магазин из карточек «Товары».\n3) Отфильтруй только подходящие карточки; выбросы (аномально высокие/низкие) помечай в note, в основной диапазон не включай.\n4) По отфильтрованным: price_min, price_max, price_median (за 1 unit, как в поле unit).\n5) Сравни с tender_price_per_unit: tender_vs_market = \"below_range\" | \"in_range\" | \"above_range\" | null.\n6) Не выдумывай цены.\n\nФормат ответа: ТОЛЬКО один JSON, без markdown.\n\nOUTPUT_SCHEMA:\n{\n  \"batch_id\": \"<из INPUT>\",\n  \"analyzed_at\": \"<ISO-8601, Europe/Moscow>\",\n  \"items\": [\n    {\n      \"specification_item_id\": <int>,\n      \"status\": \"done\" | \"not_found\",\n      \"price_min\": <number | null>,\n      \"price_max\": <number | null>,\n      \"price_median\": <number | null>,\n      \"currency\": \"RUB\",\n      \"cards\": [\n        {\n          \"title\": \"<название>\",\n          \"shop\": \"<магазин>\",\n          \"price\": <number>,\n          \"url\": \"<https://...>\"\n        }\n      ],\n      \"tender_vs_market\": \"below_range\" | \"in_range\" | \"above_range\" | null,\n      \"note\": \"<диапазон, магазины, сравнение с тендером, причина not_found>\"\n    }\n  ]\n}\n\nINPUT:",
+  "input": {
+    "batch_id": "2026-09-14-134330",
+    "exported_at": "2026-09-14T13:43:30.567779+00:00",
+    "items": [
+      {
+        "specification_item_id": 1467,
+        "auction_number": "10295327",
+        "auction_name": "РАСХОДНЫЕ МАТЕРИАЛЫ И КОМПЛЕКТУЮЩИЕ ДЛЯ ЭНЕРГЕТИЧЕСКОГО ОБОРУДОВАНИЯ",
+        "tender_initial_price": 28876.0,
+        "position_index": 5,
+        "name": "Батарейка алкалиновая GoPower LR23/A23/MN21 BL5 Alkaline 12V 5 шт",
+        "quantity": 5.0,
+        "unit": "шт",
+        "tender_price_per_unit": 300.0,
+        "tender_line_total": 1500.0,
+        "yandex_search_url": "https://yandex.ru/search?products_mode=1&text=%D0%91%D0%B0%D1%82%D0%B0%D1%80%D0%B5%D0%B9%D0%BA%D0%B0%20%D0%B0%D0%BB%D0%BA%D0%B0%D0%BB%D0%B8%D0%BD%D0%BE%D0%B2%D0%B0%D1%8F%20GoPower%20LR23/A23/MN21%20BL5%20Alkaline%2012V%205%20%D1%88%D1%82"
+      },
+      {
+        "specification_item_id": 1468,
+        "auction_number": "10295327",
+        "auction_name": "РАСХОДНЫЕ МАТЕРИАЛЫ И КОМПЛЕКТУЮЩИЕ ДЛЯ ЭНЕРГЕТИЧЕСКОГО ОБОРУДОВАНИЯ",
+        "tender_initial_price": 28876.0,
+        "position_index": 6,
+        "name": "Батарейка алкалиновая SONNEN Alkaline, 27А (MN27), алкалиновая, для сигнализаций, 1 шт., в блистере",
+        "quantity": 30.0,
+        "unit": "шт",
+        "tender_price_per_unit": 80.0,
+        "tender_line_total": 2400.0,
+        "yandex_search_url": "https://yandex.ru/search?products_mode=1&text=%D0%91%D0%B0%D1%82%D0%B0%D1%80%D0%B5%D0%B9%D0%BA%D0%B0%20%D0%B0%D0%BB%D0%BA%D0%B0%D0%BB%D0%B8%D0%BD%D0%BE%D0%B2%D0%B0%D1%8F%20SONNEN%20Alkaline%2C%2027%D0%90%20%28MN27%29%2C%20%D0%B0%D0%BB%D0%BA%D0%B0%D0%BB%D0%B8%D0%BD%D0%BE%D0%B2%D0%B0%D1%8F%2C%20%D0%B4%D0%BB%D1%8F%20%D1%81%D0%B8%D0%B3%D0%BD%D0%B0%D0%BB%D0%B8%D0%B7%D0%B0%D1%86%D0%B8%D0%B9%2C%201%20%D1%88%D1%82.%2C%20%D0%B2%20%D0%B1%D0%BB%D0%B8%D1%81%D1%82%D0%B5%D1%80%D0%B5"
+      },
+      {
+        "specification_item_id": 1469,
+        "auction_number": "10295327",
+        "auction_name": "РАСХОДНЫЕ МАТЕРИАЛЫ И КОМПЛЕКТУЮЩИЕ ДЛЯ ЭНЕРГЕТИЧЕСКОГО ОБОРУДОВАНИЯ",
+        "tender_initial_price": 28876.0,
+        "position_index": 7,
+        "name": "Батарейка Varta ELECTRONICS CR 2032 3В, 1шт",
+        "quantity": 30.0,
+        "unit": "шт",
+        "tender_price_per_unit": 90.0,
+        "tender_line_total": 2700.0,
+        "yandex_search_url": "https://yandex.ru/search?products_mode=1&text=%D0%91%D0%B0%D1%82%D0%B0%D1%80%D0%B5%D0%B9%D0%BA%D0%B0%20Varta%20ELECTRONICS%20CR%202032%203%D0%92%2C%201%D1%88%D1%82"
+      },
+      {
+        "specification_item_id": 1470,
+        "auction_number": "10295327",
+        "auction_name": "РАСХОДНЫЕ МАТЕРИАЛЫ И КОМПЛЕКТУЮЩИЕ ДЛЯ ЭНЕРГЕТИЧЕСКОГО ОБОРУДОВАНИЯ",
+        "tender_initial_price": 28876.0,
+        "position_index": 8,
+        "name": "Батарейка литиевая Smartbuy CR123A 3В 1 шт.",
+        "quantity": 30.0,
+        "unit": "упак",
+        "tender_price_per_unit": 240.0,
+        "tender_line_total": 7200.0,
+        "yandex_search_url": "https://yandex.ru/search?products_mode=1&text=%D0%91%D0%B0%D1%82%D0%B0%D1%80%D0%B5%D0%B9%D0%BA%D0%B0%20%D0%BB%D0%B8%D1%82%D0%B8%D0%B5%D0%B2%D0%B0%D1%8F%20Smartbuy%20CR123A%203%D0%92%201%20%D1%88%D1%82."
+      },
+      {
+        "specification_item_id": 1462,
+        "auction_number": "10295325",
+        "auction_name": "Бумага для офисной техники SvetoCopy Classic А4, 80 г/м2, 500 л., 146%",
+        "tender_initial_price": 37200.0,
+        "position_index": 1,
+        "name": "Бумага для офисной техники SvetoCopy Classic А4, 80 г/м2, 500 л., 146%",
+        "quantity": 100.0,
+        "unit": "пач",
+        "tender_price_per_unit": 372.0,
+        "tender_line_total": 37200.0,
+        "yandex_search_url": "https://yandex.ru/search?products_mode=1&text=%D0%91%D1%83%D0%BC%D0%B0%D0%B3%D0%B0%20%D0%B4%D0%BB%D1%8F%20%D0%BE%D1%84%D0%B8%D1%81%D0%BD%D0%BE%D0%B9%20%D1%82%D0%B5%D1%85%D0%BD%D0%B8%D0%BA%D0%B8%20SvetoCopy%20Classic%20%D0%904%2C%2080%20%D0%B3/%D0%BC2%2C%20500%20%D0%BB.%2C%20146%25"
+      },
+      {
+        "specification_item_id": 1459,
+        "auction_number": "10295326",
+        "auction_name": "РАСХОДНЫЕ МАТЕРИАЛЫ И КОМПЛЕКТУЮЩИЕ ДЛЯ ЭНЕРГЕТИЧЕСКОГО ОБОРУДОВАНИЯ",
+        "tender_initial_price": 14819.96,
+        "position_index": 1,
+        "name": "Аккумулятор SF12012 12 В, 1.2 Ач",
+        "quantity": 2.0,
+        "unit": "шт",
+        "tender_price_per_unit": 570.0,
+        "tender_line_total": 1140.0,
+        "yandex_search_url": "https://yandex.ru/search?products_mode=1&text=%D0%90%D0%BA%D0%BA%D1%83%D0%BC%D1%83%D0%BB%D1%8F%D1%82%D0%BE%D1%80%20SF12012%2012%20%D0%92%2C%201.2%20%D0%90%D1%87"
+      },
+      {
+        "specification_item_id": 1460,
+        "auction_number": "10295326",
+        "auction_name": "РАСХОДНЫЕ МАТЕРИАЛЫ И КОМПЛЕКТУЮЩИЕ ДЛЯ ЭНЕРГЕТИЧЕСКОГО ОБОРУДОВАНИЯ",
+        "tender_initial_price": 14819.96,
+        "position_index": 2,
+        "name": "Батарейка алкалиновая DURACELL BASIC АА 1,5В 12 шт.",
+        "quantity": 2.0,
+        "unit": "упак",
+        "tender_price_per_unit": 1490.0,
+        "tender_line_total": 2980.0,
+        "yandex_search_url": "https://yandex.ru/search?products_mode=1&text=%D0%91%D0%B0%D1%82%D0%B0%D1%80%D0%B5%D0%B9%D0%BA%D0%B0%20%D0%B0%D0%BB%D0%BA%D0%B0%D0%BB%D0%B8%D0%BD%D0%BE%D0%B2%D0%B0%D1%8F%20DURACELL%20BASIC%20%D0%90%D0%90%201%2C5%D0%92%2012%20%D1%88%D1%82."
+      },
+      {
+        "specification_item_id": 1461,
+        "auction_number": "10295326",
+        "auction_name": "РАСХОДНЫЕ МАТЕРИАЛЫ И КОМПЛЕКТУЮЩИЕ ДЛЯ ЭНЕРГЕТИЧЕСКОГО ОБОРУДОВАНИЯ",
+        "tender_initial_price": 14819.96,
+        "position_index": 3,
+        "name": "Батарейка DURACELL 2400 ААА 18шт",
+        "quantity": 4.0,
+        "unit": "упак",
+        "tender_price_per_unit": 2674.99,
+        "tender_line_total": 10699.96,
+        "yandex_search_url": "https://yandex.ru/search?products_mode=1&text=%D0%91%D0%B0%D1%82%D0%B0%D1%80%D0%B5%D0%B9%D0%BA%D0%B0%20DURACELL%202400%20%D0%90%D0%90%D0%90%2018%D1%88%D1%82"
+      },
+      {
+        "specification_item_id": 1458,
+        "auction_number": "10295321",
+        "auction_name": "Батарейка алкалиновая SONNEN Alkaline АА(LR6, 15А) алкалиновые короб 24 шт",
+        "tender_initial_price": 1707.12,
+        "position_index": 1,
+        "name": "Батарейка алкалиновая SONNEN Alkaline АА(LR6, 15А) алкалиновые короб 24 шт",
+        "quantity": 3.0,
+        "unit": "упак",
+        "tender_price_per_unit": 569.04,
+        "tender_line_total": 1707.12,
+        "yandex_search_url": "https://yandex.ru/search?products_mode=1&text=%D0%91%D0%B0%D1%82%D0%B0%D1%80%D0%B5%D0%B9%D0%BA%D0%B0%20%D0%B0%D0%BB%D0%BA%D0%B0%D0%BB%D0%B8%D0%BD%D0%BE%D0%B2%D0%B0%D1%8F%20SONNEN%20Alkaline%20%D0%90%D0%90%28LR6%2C%2015%D0%90%29%20%D0%B0%D0%BB%D0%BA%D0%B0%D0%BB%D0%B8%D0%BD%D0%BE%D0%B2%D1%8B%D0%B5%20%D0%BA%D0%BE%D1%80%D0%BE%D0%B1%2024%20%D1%88%D1%82"
+      },
+      {
+        "specification_item_id": 1450,
+        "auction_number": "10295330",
+        "auction_name": "ТОВАРЫ СТРОИТЕЛЬНЫЕ",
+        "tender_initial_price": 373603.31,
+        "position_index": 1,
+        "name": "Кипятильник ТЕРМАЛЬ КЭНД-50 6000Вт 8л проточного типа",
+        "quantity": 1.0,
+        "unit": "шт",
+        "tender_price_per_unit": 56676.0,
+        "tender_line_total": 56676.0,
+        "yandex_search_url": "https://yandex.ru/search?products_mode=1&text=%D0%9A%D0%B8%D0%BF%D1%8F%D1%82%D0%B8%D0%BB%D1%8C%D0%BD%D0%B8%D0%BA%20%D0%A2%D0%95%D0%A0%D0%9C%D0%90%D0%9B%D0%AC%20%D0%9A%D0%AD%D0%9D%D0%94-50%206000%D0%92%D1%82%208%D0%BB%20%D0%BF%D1%80%D0%BE%D1%82%D0%BE%D1%87%D0%BD%D0%BE%D0%B3%D0%BE%20%D1%82%D0%B8%D0%BF%D0%B0"
+      }
+    ]
+  }
+}

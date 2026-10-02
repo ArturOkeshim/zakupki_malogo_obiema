@@ -1,0 +1,164 @@
+{
+  "batch_id": "2026-09-14-134330",
+  "analyzed_at": "2026-09-14T17:05:00+03:00",
+  "items": [
+    {
+      "specification_item_id": 1467,
+      "status": "done",
+      "price_min": 29,
+      "price_max": 441,
+      "price_median": 160,
+      "currency": "RUB",
+      "cards": [
+        {"title": "Батарейка GoPower LR23/V23GA/A23/MN21 BL5 Щелочная 12V", "shop": "AB-Batteries", "price": 29, "url": "https://yandex.ru/search?products_mode=1&text=Батарейка алкалиновая GoPower LR23/A23/MN21 BL5 Alkaline 12V 5 шт"},
+        {"title": "Батарейка ALKALINE 23A 12V, 5 шт", "shop": "Яндекс Маркет", "price": 123, "url": "https://yandex.ru/search?products_mode=1&text=Батарейка алкалиновая GoPower LR23/A23/MN21 BL5 Alkaline 12V 5 шт"},
+        {"title": "Батарейка GoPower LR23/A23/MN21 BL5 Alkaline 12V 00-00022423", "shop": "ВсеИнструменты.ру", "price": 189, "url": "https://yandex.ru/search?products_mode=1&text=Батарейка алкалиновая GoPower LR23/A23/MN21 BL5 Alkaline 12V 5 шт"},
+        {"title": "Батарейка Gopower LR23/A23/MN21 BL5 Alkaline 12V 00-00022423", "shop": "Яндекс Маркет", "price": 441, "url": "https://yandex.ru/search?products_mode=1&text=Батарейка алкалиновая GoPower LR23/A23/MN21 BL5 Alkaline 12V 5 шт"}
+      ],
+      "tender_vs_market": "in_range",
+      "note": "Включены только упаковки GoPower LR23/A23/MN21 BL5 12V (блистер 5 шт); цена дана за упаковку. Исключены другие бренды (Camelion, Ergolux, GP и т.п.) и вариант с ценой 'за 1шт'. Тендерная цена 300 (за 'шт'=упаковку) в диапазоне."
+    },
+    {
+      "specification_item_id": 1468,
+      "status": "done",
+      "price_min": 35,
+      "price_max": 292,
+      "price_median": 99,
+      "currency": "RUB",
+      "cards": [
+        {"title": "Батарейки Sonnen Батарейка Alkaline, 27А MN27, алкалиновая, для сигнализаций, 1 шт., в блистере", "shop": "GIPERMIX.RU", "price": 35, "url": "https://yandex.ru/search?products_mode=1&text=Батарейка алкалиновая SONNEN Alkaline, 27А (MN27), алкалиновая, для сигнализаций, 1 шт., в блистере"},
+        {"title": "Батарейка SONNEN Alkaline, 27А MN27, алкалиновая, для сигнализаций, 1 шт., в блистере", "shop": "officemag.ru", "price": 50, "url": "https://yandex.ru/search?products_mode=1&text=Батарейка алкалиновая SONNEN Alkaline, 27А (MN27), алкалиновая, для сигнализаций, 1 шт., в блистере"},
+        {"title": "Батарейка SONNEN Alkaline, 27А алкалиновая, для сигнализаций, 1 шт., в блистере", "shop": "Яндекс Маркет", "price": 186, "url": "https://yandex.ru/search?products_mode=1&text=Батарейка алкалиновая SONNEN Alkaline, 27А (MN27), алкалиновая, для сигнализаций, 1 шт., в блистере"},
+        {"title": "Батарейка SONNEN Alkaline, 27А алкалиновая, для сигнализаций, 1 шт., в блистере", "shop": "Яндекс Маркет", "price": 292, "url": "https://yandex.ru/search?products_mode=1&text=Батарейка алкалиновая SONNEN Alkaline, 27А (MN27), алкалиновая, для сигнализаций, 1 шт., в блистере"}
+      ],
+      "tender_vs_market": "in_range",
+      "note": "Включены только SONNEN Alkaline 27A/MN27 в блистере 1шт (без учёта комплектов из 20 шт и товаров других брендов). Тендерная цена 80 в диапазоне, близко к медиане."
+    },
+    {
+      "specification_item_id": 1469,
+      "status": "done",
+      "price_min": 61,
+      "price_max": 317,
+      "price_median": 121,
+      "currency": "RUB",
+      "cards": [
+        {"title": "Батарейка Varta CR2032 Electronics Lithium 06032101401", "shop": "qilix.ru", "price": 61, "url": "https://yandex.ru/search?products_mode=1&text=Батарейка Varta ELECTRONICS CR 2032 3В, 1шт"},
+        {"title": "Элемент питания Varta ELECTRONICS CR 2032", "shop": "ВсеИнструменты.ру", "price": 121, "url": "https://yandex.ru/search?products_mode=1&text=Батарейка Varta ELECTRONICS CR 2032 3В, 1шт"},
+        {"title": "Элемент питания Varta CR2032 Lithium", "shop": "Яндекс Маркет", "price": 317, "url": "https://yandex.ru/search?products_mode=1&text=Батарейка Varta ELECTRONICS CR 2032 3В, 1шт"}
+      ],
+      "tender_vs_market": "in_range",
+      "note": "Включены только Varta CR2032 в упаковке 1шт (без учёта BL2/BL5/BOX10 и других типоразмеров CR2/CR1220). Тендерная цена 90 в диапазоне, ниже медианы."
+    },
+    {
+      "specification_item_id": 1470,
+      "status": "done",
+      "price_min": 113,
+      "price_max": 213,
+      "price_median": 163,
+      "currency": "RUB",
+      "cards": [
+        {"title": "Батарейка SmartBuy CR123-1BL Professional Electronics Lithium", "shop": "sotovikm.ru", "price": 113, "url": "https://yandex.ru/search?products_mode=1&text=Батарейка литиевая Smartbuy CR123A 3В 1 шт."},
+        {"title": "Литиевый элемент питания Smartbuy CR123A SBBL-123A-1B", "shop": "ВсеИнструменты.ру", "price": 118, "url": "https://yandex.ru/search?products_mode=1&text=Батарейка литиевая Smartbuy CR123A 3В 1 шт."},
+        {"title": "Батарейка CR123A 3V, Smartbuy", "shop": "Радиоремонт", "price": 213, "url": "https://yandex.ru/search?products_mode=1&text=Батарейка литиевая Smartbuy CR123A 3В 1 шт."}
+      ],
+      "tender_vs_market": "above_range",
+      "note": "Включены только Smartbuy CR123A в упаковке 1шт; исключены другие бренды (GoPower, GP, Panasonic и т.п.). Тендерная цена 240 выше рыночного максимума (213)."
+    },
+    {
+      "specification_item_id": 1462,
+      "status": "done",
+      "price_min": 299,
+      "price_max": 592,
+      "price_median": 379,
+      "currency": "RUB",
+      "cards": [
+        {"title": "Бумага офисная SvetoCopy Classic А4 80 г/кв.м марка С 146 CIE 500 листов", "shop": "Комус", "price": 299, "url": "https://yandex.ru/search?products_mode=1&text=Бумага для офисной техники SvetoCopy Classic А4, 80 г/м2, 500 л., 146%"},
+        {"title": "Бумага для офисной техники SvetoCopy A4, марка C, 80 г/кв.м, 500 листов", "shop": "ВсеИнструменты.ру", "price": 379, "url": "https://yandex.ru/search?products_mode=1&text=Бумага для офисной техники SvetoCopy Classic А4, 80 г/м2, 500 л., 146%"},
+        {"title": "Бумага офисная А4, SVETOCOPY CLASSIC, 80 г/м2, 500 л", "shop": "axelpack.ru", "price": 430, "url": "https://yandex.ru/search?products_mode=1&text=Бумага для офисной техники SvetoCopy Classic А4, 80 г/м2, 500 л., 146%"},
+        {"title": "Бумага офисная SvetoCopy CLASSIC, А4, 80 г/м2, 500 л, 1 упк.", "shop": "Яндекс Маркет", "price": 592, "url": "https://yandex.ru/search?products_mode=1&text=Бумага для офисной техники SvetoCopy Classic А4, 80 г/м2, 500 л., 146%"}
+      ],
+      "tender_vs_market": "in_range",
+      "note": "Включена только SvetoCopy Classic (марка C, 146% CIE, 500 л, 80г/м2); исключены Eco-линейка (белизна 60%), формат А3 и упаковки по 5 пачек. Тендерная цена 372 в диапазоне, близко к медиане."
+    },
+    {
+      "specification_item_id": 1459,
+      "status": "done",
+      "price_min": 386,
+      "price_max": 769,
+      "price_median": 474,
+      "currency": "RUB",
+      "cards": [
+        {"title": "Аккумуляторная батарея Security Force SF 12012", "shop": "solarmsk.ru", "price": 386, "url": "https://yandex.ru/search?products_mode=1&text=Аккумулятор SF12012 12 В, 1.2 Ач"},
+        {"title": "Аккумуляторы Security Force SF 12012 | Аккумулятор 12В 1,2 А∙ч", "shop": "Сатро-Паладин", "price": 434, "url": "https://yandex.ru/search?products_mode=1&text=Аккумулятор SF12012 12 В, 1.2 Ач"},
+        {"title": "Аккумулятор Security Force 12В, 1.2 Ач SF 12012 герметичный свинцово-кислотный", "shop": "XCOM-SHOP", "price": 447, "url": "https://yandex.ru/search?products_mode=1&text=Аккумулятор SF12012 12 В, 1.2 Ач"},
+        {"title": "Аккумулятор Security Force SF 12012 12 V, 1.2 A/h для ИБП / касса / фонарик / геодезия", "shop": "Яндекс Маркет", "price": 769, "url": "https://yandex.ru/search?products_mode=1&text=Аккумулятор SF12012 12 В, 1.2 Ач"}
+      ],
+      "tender_vs_market": "in_range",
+      "note": "Включены только модели Security Force SF12012 (точная модель, а не Delta DT12012, Battbee BT12012, ETALON и др. аналоги). Тендерная цена 570 в диапазоне."
+    },
+    {
+      "specification_item_id": 1460,
+      "status": "done",
+      "price_min": 399,
+      "price_max": 1602,
+      "price_median": 1016,
+      "currency": "RUB",
+      "cards": [
+        {"title": "Duracell Батарейки щелочные серия Basic AA/LR6 12 шт", "shop": "OZON", "price": 399, "url": "https://yandex.ru/search?products_mode=1&text=Батарейка алкалиновая DURACELL BASIC АА 1,5В 12 шт."},
+        {"title": "Батарейка Duracell AA 12 шт/упаковка НФ-00007718", "shop": "ВсеИнструменты.ру", "price": 894, "url": "https://yandex.ru/search?products_mode=1&text=Батарейка алкалиновая DURACELL BASIC АА 1,5В 12 шт."},
+        {"title": "Батарейка алкалиновая Duracell Basic, AA, LR6-12BL, 1.5В, блистер, 12 шт", "shop": "Яндекс Маркет", "price": 1093, "url": "https://yandex.ru/search?products_mode=1&text=Батарейка алкалиновая DURACELL BASIC АА 1,5В 12 шт."},
+        {"title": "Батарейка 12шт пальчиковая DURACELL Basic LR6 AA, MN1500 1.5В щелочная алкалиновая бл12", "shop": "Яндекс Маркет", "price": 1564, "url": "https://yandex.ru/search?products_mode=1&text=Батарейка алкалиновая DURACELL BASIC АА 1,5В 12 шт."}
+      ],
+      "tender_vs_market": "in_range",
+      "note": "Включены только упаковки Duracell Basic AA (LR6) по 12 шт; исключены AAA-версии, упаковки по 4/10/18/24 шт и позиции с явно ошибочной ценой 'за 1 шт'. Тендерная цена 1490 в верхней части диапазона, но в пределах максимума (1602)."
+    },
+    {
+      "specification_item_id": 1461,
+      "status": "done",
+      "price_min": 1482,
+      "price_max": 2625,
+      "price_median": 2012,
+      "currency": "RUB",
+      "cards": [
+        {"title": "Батарейка AAA Duracell LR03 BASIC MN2400 упаковка 18шт", "shop": "21vek-220v.ru", "price": 1482, "url": "https://yandex.ru/search?products_mode=1&text=Батарейка DURACELL 2400 ААА 18шт"},
+        {"title": "Элемент питания Duracell Basic LR03-18BL AAA бл 18", "shop": "ОНЛАЙНТРЕЙД.РУ", "price": 1904, "url": "https://yandex.ru/search?products_mode=1&text=Батарейка DURACELL 2400 ААА 18шт"},
+        {"title": "Батарейки цилиндрические Duracell Basic LR03 MN2400/А286/AAA 18", "shop": "ЧИП и ДИП", "price": 2220, "url": "https://yandex.ru/search?products_mode=1&text=Батарейка DURACELL 2400 ААА 18шт"},
+        {"title": "Батарейки щелочные Duracell Basic ААA/LR03 18 шт. блистер", "shop": "ВсеИнструменты.ру", "price": 2625, "url": "https://yandex.ru/search?products_mode=1&text=Батарейка DURACELL 2400 ААА 18шт"}
+      ],
+      "tender_vs_market": "above_range",
+      "note": "Включены только упаковки Duracell Basic AAA (LR03/MN2400) по 18 шт; исключены упаковки других объёмов (8/12/24 шт) и явные выбросы (3237, 4519, 6165). Тендерная цена 2674.99 незначительно выше рыночного максимума (2625)."
+    },
+    {
+      "specification_item_id": 1458,
+      "status": "done",
+      "price_min": 418,
+      "price_max": 693,
+      "price_median": 576,
+      "currency": "RUB",
+      "cards": [
+        {"title": "Батарейки комплект 24 шт., SONNEN Alkaline, АА LR6, 15А, алкалиновые, пальчиковые, короб, 455095", "shop": "СУПЕРБУМ", "price": 418, "url": "https://yandex.ru/search?products_mode=1&text=Батарейка алкалиновая SONNEN Alkaline АА(LR6, 15А) алкалиновые короб 24 шт"},
+        {"title": "Батарейки SONNEN комплект 24 шт, Alkaline, АА LR6,15А, алкалиновые, пальчиковые, короб, 455095", "shop": "ВсеИнструменты.ру", "price": 488, "url": "https://yandex.ru/search?products_mode=1&text=Батарейка алкалиновая SONNEN Alkaline АА(LR6, 15А) алкалиновые короб 24 шт"},
+        {"title": "Батарейки комплект 24 шт., SONNEN Alkaline, АА LR6, 15А, алкалиновые, пальчиковые, короб, 455095", "shop": "officemag.ru", "price": 576, "url": "https://yandex.ru/search?products_mode=1&text=Батарейка алкалиновая SONNEN Alkaline АА(LR6, 15А) алкалиновые короб 24 шт"},
+        {"title": "Батарейки SONNEN 455095", "shop": "AUTODOC.RU", "price": 693, "url": "https://yandex.ru/search?products_mode=1&text=Батарейка алкалиновая SONNEN Alkaline АА(LR6, 15А) алкалиновые короб 24 шт"}
+      ],
+      "tender_vs_market": "in_range",
+      "note": "Включены только упаковки SONNEN Alkaline AA(LR6,15A) короб 24шт (артикул 455095); исключены другие фасовки (2/4/10/30/40 шт) и явные выбросы на Яндекс Маркет (1540-1887 руб — вероятно, ошибочные листинги). Тендерная цена 569.04 в диапазоне, близко к медиане."
+    },
+    {
+      "specification_item_id": 1450,
+      "status": "done",
+      "price_min": 41424,
+      "price_max": 60047,
+      "price_median": 55543,
+      "currency": "RUB",
+      "cards": [
+        {"title": "Кипятильники Термаль Кипятильник Термаль кэнд 50", "shop": "vestahoreca.ru", "price": 41424, "url": "https://yandex.ru/search?products_mode=1&text=Кипятильник ТЕРМАЛЬ КЭНД-50 6000Вт 8л проточного типа"},
+        {"title": "Кипятильник Термаль КЭНД-50", "shop": "rus-horeca.ru", "price": 52504, "url": "https://yandex.ru/search?products_mode=1&text=Кипятильник ТЕРМАЛЬ КЭНД-50 6000Вт 8л проточного типа"},
+        {"title": "Кипятильник электрический Термаль кэнд-50", "shop": "MosHoReCa", "price": 55543, "url": "https://yandex.ru/search?products_mode=1&text=Кипятильник ТЕРМАЛЬ КЭНД-50 6000Вт 8л проточного типа"},
+        {"title": "Кипятильник электрический КЭНД-50 нерж.", "shop": "rektor.ru", "price": 60047, "url": "https://yandex.ru/search?products_mode=1&text=Кипятильник ТЕРМАЛЬ КЭНД-50 6000Вт 8л проточного типа"}
+      ],
+      "tender_vs_market": "in_range",
+      "note": "Включена только базовая модель Термаль КЭНД-50 (проточный, без указания на другую версию -03/-04); исключены модификации КЭНД-50-03/-04, КЭНД-50М, КЭНД-100 и аналог другого бренда Abat КЭН-50. Тендерная цена 56676 в диапазоне, близко к медиане."
+    }
+  ]
+}

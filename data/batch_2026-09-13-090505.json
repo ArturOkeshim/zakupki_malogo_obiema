@@ -1,0 +1,126 @@
+{
+  "batch_id": "2026-09-13-090505",
+  "exported_at": "2026-09-13T09:05:05.632771+00:00",
+  "items": [
+    {
+      "specification_item_id": 1306,
+      "auction_number": "10293584",
+      "auction_name": "Пенокартон Artfoam Standard, толщина 3 мм, белый, 1000 х 1400 мм",
+      "tender_initial_price": 10549.95,
+      "position_index": 1,
+      "name": "Пенокартон Artfoam Standard, толщина 3 мм, белый, 1000 х 1400 мм",
+      "quantity": 15.0,
+      "unit": "л.",
+      "tender_price_per_unit": 703.33,
+      "tender_line_total": 10549.95
+    },
+    {
+      "specification_item_id": 1305,
+      "auction_number": "10293604",
+      "auction_name": "Обеспечение доступа к электронному документообороту",
+      "tender_initial_price": 11859.3,
+      "position_index": 1,
+      "name": "Обеспечение доступа к электронному документообороту",
+      "quantity": 1.0,
+      "unit": "усл. ед",
+      "tender_price_per_unit": 11859.3,
+      "tender_line_total": 11859.3
+    },
+    {
+      "specification_item_id": 1304,
+      "auction_number": "10293608",
+      "auction_name": "Веб-камера A4Tech PK-910H",
+      "tender_initial_price": 8859.0,
+      "position_index": 1,
+      "name": "Веб-камера A4Tech PK-910H",
+      "quantity": 3.0,
+      "unit": "шт",
+      "tender_price_per_unit": 2953.0,
+      "tender_line_total": 8859.0
+    },
+    {
+      "specification_item_id": 1302,
+      "auction_number": "10293634",
+      "auction_name": "НАКОПИТЕЛИ ДАННЫХ ВНУТРЕННИЕ",
+      "tender_initial_price": 450000.0,
+      "position_index": 1,
+      "name": "Накопитель данных внутренний Seagate ST10000NM002G 10000 ГБ",
+      "quantity": 3.0,
+      "unit": "шт",
+      "tender_price_per_unit": 50000.0,
+      "tender_line_total": 150000.0
+    },
+    {
+      "specification_item_id": 1303,
+      "auction_number": "10293634",
+      "auction_name": "НАКОПИТЕЛИ ДАННЫХ ВНУТРЕННИЕ",
+      "tender_initial_price": 450000.0,
+      "position_index": 2,
+      "name": "Жесткий диск Seagate Exos X18 16Tb 7.2k 512e/4Kn 256MB 3.5\" SAS",
+      "quantity": 3.0,
+      "unit": "шт",
+      "tender_price_per_unit": 100000.0,
+      "tender_line_total": 300000.0
+    },
+    {
+      "specification_item_id": 1301,
+      "auction_number": "10294333",
+      "auction_name": "Батарейка литиевая Varta CR2430 (1шт) 3В",
+      "tender_initial_price": 4266.9,
+      "position_index": 1,
+      "name": "Батарейка литиевая Varta CR2430 (1шт) 3В",
+      "quantity": 30.0,
+      "unit": "шт",
+      "tender_price_per_unit": 142.23,
+      "tender_line_total": 4266.9
+    },
+    {
+      "specification_item_id": 1300,
+      "auction_number": "10293643",
+      "auction_name": "Адаптационное сопровождение информационных систем и ресурсов",
+      "tender_initial_price": 336482.52,
+      "position_index": 1,
+      "name": "Адаптационное сопровождение информационных систем и ресурсов",
+      "quantity": 12.0,
+      "unit": "усл. ед",
+      "tender_price_per_unit": 28040.21,
+      "tender_line_total": 336482.52
+    },
+    {
+      "specification_item_id": 1295,
+      "auction_number": "10293659",
+      "auction_name": "ТОВАРЫ СТРОИТЕЛЬНЫЕ",
+      "tender_initial_price": 11226.56,
+      "position_index": 1,
+      "name": "Стяжка кабельная  нейлоновая TOPFORT 4х300 (3.6х300 мм) чёрная 100 штук в упаковке",
+      "quantity": 2.0,
+      "unit": "упак",
+      "tender_price_per_unit": 204.0,
+      "tender_line_total": 408.0
+    },
+    {
+      "specification_item_id": 1296,
+      "auction_number": "10293659",
+      "auction_name": "ТОВАРЫ СТРОИТЕЛЬНЫЕ",
+      "tender_initial_price": 11226.56,
+      "position_index": 2,
+      "name": "Стяжка кабельная  нейлоновая TOPFORT белая морозостойкая 3.6х300 мм 100 штук в упаковке",
+      "quantity": 2.0,
+      "unit": "упак",
+      "tender_price_per_unit": 249.0,
+      "tender_line_total": 498.0
+    },
+    {
+      "specification_item_id": 1297,
+      "auction_number": "10293659",
+      "auction_name": "ТОВАРЫ СТРОИТЕЛЬНЫЕ",
+      "tender_initial_price": 11226.56,
+      "position_index": 3,
+      "name": "Клемма Wago 222-415 5-проводная с рычагом (40 штук в упаковке)",
+      "quantity": 2.0,
+      "unit": "упак",
+      "tender_price_per_unit": 2752.0,
+      "tender_line_total": 5504.0
+    }
+  ]
+}

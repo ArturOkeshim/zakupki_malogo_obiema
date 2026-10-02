@@ -1,0 +1,145 @@
+{
+  "batch_id": "2026-09-13-115539",
+  "analyzed_at": "2026-09-13T15:11:10+03:00",
+  "items": [
+    {
+      "specification_item_id": 1308,
+      "item_type": "goods",
+      "market_price_per_unit": 9867,
+      "currency": "RUB",
+      "confidence": "high",
+      "sources": [
+        {
+          "title": "Яндекс Маркет — DA-office: Флипчарт Attache на треноге 537979 (100х70 см) белый",
+          "url": "https://market.yandex.ru/card/flipchart-attache-magnitno-markernyy-attache-na-trenoge-537979-100kh70-sm-belyy/102098493521",
+          "price_seen": 9867,
+          "note": "Точное совпадение модели/артикула 537979"
+        }
+      ],
+      "note": "Модель и характеристики совпадают полностью"
+    },
+    {
+      "specification_item_id": 1309,
+      "item_type": "goods",
+      "market_price_per_unit": 440,
+      "currency": "RUB",
+      "confidence": "high",
+      "sources": [
+        {
+          "title": "Комус — Подставка настольная вертикальная Выбор есть А4",
+          "url": "https://www.komus.ru/katalog/demonstratsionnoe-oborudovanie/podstavki-stojki-i-tablichki/podstavki-nastolnye/podstavka-nastolnaya-vertikalnaya-vybor-est-a4-dlya-reklamnykh-i-informatsionnykh-materialov/p/2327332/",
+          "price_seen": 440,
+          "note": "Название карточки совпадает дословно с наименованием позиции"
+        }
+      ],
+      "note": "Точное совпадение наименования и бренда 'Выбор есть'"
+    },
+    {
+      "specification_item_id": 1310,
+      "item_type": "goods",
+      "market_price_per_unit": null,
+      "currency": "RUB",
+      "confidence": "not_found",
+      "sources": [],
+      "note": "В наименовании не указан бренд/модель ('Флипчарт 70х100 на роликах'); у разных производителей цена варьируется от ~5000 до ~45000 руб, однозначно сопоставить с конкретным SKU невозможно"
+    },
+    {
+      "specification_item_id": 1311,
+      "item_type": "goods",
+      "market_price_per_unit": 29569,
+      "currency": "RUB",
+      "confidence": "medium",
+      "sources": [
+        {
+          "title": "Комус — Доска магнитно-маркерная Attache (Attache Economy) Twist 100x150 см",
+          "url": "https://www.komus.ru/katalog/demonstratsionnoe-oborudovanie/magnitno-markernye-i-melovye-doski/magnitno-markernye-doski/doska-magnitno-markernaya-attache-attache-economy-twist-100x150-sm-odnosektsionnaya-s-lakovym-pokrytiem-na-kolesikakh-polochka-dlya-markerov-/p/1132956/",
+          "price_seen": 29569,
+          "note": "Карточка обозначена как 'Attache (Attache Economy)' и 'на колёсиках', в тендере — 'Attache' и 'на роликах'; остальные характеристики (100х150, лак, вращающаяся) совпадают"
+        }
+      ],
+      "note": "Незначительное расхождение в формулировке бренда/линейки (Economy) и типа опоры (колёсики/ролики), поэтому не high"
+    },
+    {
+      "specification_item_id": 1307,
+      "item_type": "goods",
+      "market_price_per_unit": 898,
+      "currency": "RUB",
+      "confidence": "high",
+      "sources": [
+        {
+          "title": "Официальный сайт Lemark — Шланг LE8036S, 150 см",
+          "url": "https://www.lemark.su/catalog/vannaya-komnata/aksessuary-/LE8036S/",
+          "price_seen": 898,
+          "note": "Точное совпадение артикула LE8036S, 150 см, хром; цена совпадает с тендерной (898 руб.)"
+        }
+      ],
+      "note": "Полное совпадение по официальному сайту производителя"
+    },
+    {
+      "specification_item_id": 1298,
+      "item_type": "goods",
+      "market_price_per_unit": 1533,
+      "currency": "RUB",
+      "confidence": "low",
+      "sources": [
+        {
+          "title": "Яндекс Маркет (ВсеИнструменты.ру) — Соединительная клемма с рычажком WAGO 3-х пров. 0,08-2,5мм, 400В, 32А, без пасты, 50 шт., оригинал",
+          "url": "https://market.yandex.ru/search?text=WAGO%20222-413%20%D0%BA%D0%BB%D0%B5%D0%BC%D0%BC%D0%B0%20%D1%81%20%D1%80%D1%8B%D1%87%D0%B0%D0%B6%D0%BA%D0%BE%D0%BC%203%20%D0%BF%D1%80%D0%BE%D0%B2%D0%BE%D0%B4%D0%B0%2050%20%D1%88%D1%82%20%D1%83%D0%BF%D0%B0%D0%BA%D0%BE%D0%B2%D0%BA%D0%B0",
+          "price_seen": 1533,
+          "note": "Цена за упаковку 50 шт, совпадает по параметрам (3 провода, 400В, 32А, без пасты); переход на карточку товара не выполнен, цена видна в листинге Маркета"
+        }
+      ],
+      "note": "Цена за уп.50шт указана в списке результатов; не удалось открыть отдельную карточку товара для окончательного подтверждения, поэтому confidence снижен до low"
+    },
+    {
+      "specification_item_id": 1299,
+      "item_type": "goods",
+      "market_price_per_unit": 600.78,
+      "currency": "RUB",
+      "confidence": "high",
+      "sources": [
+        {
+          "title": "Комус — Герметик силиконовый Момент универсальный 280 мл прозрачный (2002673)",
+          "url": "https://www.komus.ru/search/?text=2002673",
+          "price_seen": 600.78,
+          "note": "Артикул 2002673 указан в тендере и точно совпадает; цена идентична тендерной"
+        }
+      ],
+      "note": "Точное совпадение по артикулу производителя 2002673"
+    },
+    {
+      "specification_item_id": 1294,
+      "item_type": "goods",
+      "market_price_per_unit": 3701,
+      "currency": "RUB",
+      "confidence": "high",
+      "sources": [
+        {
+          "title": "Яндекс Маркет (ВсеИнструменты.ру, ОРИГИНАЛ) — Акустический кабель ЭРА A-150-S 2х1,5 мм2, прозрачный, 100м, 8/144, Б0048274",
+          "url": "https://market.yandex.ru/search?text=%D0%9A%D0%B0%D0%B1%D0%B5%D0%BB%D1%8C%20%D0%B0%D0%BA%D1%83%D1%81%D1%82%D0%B8%D1%87%D0%B5%D1%81%D0%BA%D0%B8%D0%B9%20%D0%AD%D0%A0%D0%90%20A-150-S%202%D1%851,5%20%D0%BC%D0%BC2%20%D0%BF%D1%80%D0%BE%D0%B7%D1%80%D0%B0%D1%87%D0%BD%D1%8B%D0%B9%20100%20%D0%BC",
+          "price_seen": 3701,
+          "note": "Точное совпадение модели A-150-S, сечения, длины и партии (8/144), артикул Б0048274, маркировка ОРИГИНАЛ"
+        }
+      ],
+      "note": "Полное совпадение по модели, длине бухты и упаковке"
+    },
+    {
+      "specification_item_id": 1289,
+      "item_type": "goods",
+      "market_price_per_unit": null,
+      "currency": "RUB",
+      "confidence": "not_found",
+      "sources": [],
+      "note": "В наименовании нет бренда/модели ('Хомут оцинкованный 76мм 2мм'); под эти размеры подходят разные типы хомутов (для дорожных знаков, трубные, спринклерные) с разбросом цен от ~55 до ~1000+ руб., открыть карточку конкретного товара с ценой не удалось (сайты блокировали доступ), поэтому однозначно сопоставить нельзя"
+    },
+    {
+      "specification_item_id": 1290,
+      "item_type": "goods",
+      "market_price_per_unit": null,
+      "currency": "RUB",
+      "confidence": "not_found",
+      "sources": [],
+      "note": "Найдены упоминания бренда 'КРЕП-КОМП' для хомута червячного 140-160 (сайт krep-komp.ru, ориентировочно ~120-223 руб/шт по кэшу поисковика), но при переходе на карточку товара сайт возвращал 404/не отображал товар, поэтому цена не подтверждена открытой страницей и не может быть указана с уверенностью"
+    }
+  ]
+}
