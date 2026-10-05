@@ -227,9 +227,14 @@ def ask_agent(prompt: str) -> str:
             options = AgentOptions(
                 api_key=api_key,
                 model=MODEL_ID,
+                # ЗАМЕТКА ДЛЯ ОБУЧЕНИЯ:
+                # webSearch — встроенный поиск со сниппетами, без открытия сайта.
+                # Его нет в списке инструментов, поэтому агент не может им «отделаться».
+                disallowed_tools=["webSearch"],
                 local=LocalAgentOptions(
                     cwd=PROJECT_ROOT,
-                    # Подхватить MCP из настроек Cursor (браузер и прочее), если они есть.
+                    # "project" читает .cursor/mcp.json в этой папке (там Playwright).
+                    # "user" читает ~/.cursor/mcp.json, если он есть.
                     setting_sources=["user", "project"],
                 ),
             )
