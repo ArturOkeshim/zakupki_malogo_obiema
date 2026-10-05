@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 
 from sqlalchemy import select
 
-from db.models import AuctionRecord, SpecificationItemRecord
+from db.models import AuctionRecord, PurchaseRecord, SpecificationItemRecord
 from db.session import SessionLocal
 from price_evaluate import (
     EvaluateResult,
@@ -12,7 +12,65 @@ from price_evaluate import (
     tender_line_total,
 )
 
-BATCH_SIZE_DEFAULT = 10
+# Одна позиция на запуск агента: чужие строки в том же промпте сбивают поиск.
+BATCH_SIZE_DEFAULT = 1
+
+
+def get_unfinished_auction_numbers() -> list[str]:
+    """
+    Закупки, которые пайплайн уже сохранил, но не довёл до цены.
+    Это нет спецификации или есть позиции со статусом pending.
+    Уже оценённые закупки сюда не входят.
+    """
+    with SessionLocal() as session:
+        purchases = session.scalars(
+            select(PurchaseRecord).order_by(PurchaseRecord.scraped_at)
+        ).all()
+
+        latest_scraped_at = {}
+        for purchase in purchases:
+            latest_scraped_at[purchase.auction_number] = purchase.scraped_at
+
+        done_numbers = set(
+            session.scalars(
+                select(AuctionRecord.auction_number).where(AuctionRecord.detail_status == "done")
+            ).all()
+        )
+        pending_numbers = set(
+            session.scalars(
+                select(SpecificationItemRecord.auction_number)
+                .where(SpecificationItemRecord.price_research_status == "pending")
+                .distinct()
+            ).all()
+        )
+
+    unfinished = []
+    for auction_number, scraped_at in latest_scraped_at.items():
+        detail_missing = auction_number not in done_numbers
+        price_missing = auction_number in pending_numbers
+        if detail_missing or price_missing:
+            unfinished.append((scraped_at, auction_number))
+
+    unfinished.sort()
+    return [auction_number for _, auction_number in unfinished]
+
+
+def numbers_missing_detail(auction_numbers: list[str]) -> list[str]:
+    """Из списка оставляет номера, у которых спецификация ещё не снята."""
+    if not auction_numbers:
+        return []
+
+    with SessionLocal() as session:
+        done_numbers = set(
+            session.scalars(
+                select(AuctionRecord.auction_number).where(
+                    AuctionRecord.auction_number.in_(auction_numbers),
+                    AuctionRecord.detail_status == "done",
+                )
+            ).all()
+        )
+
+    return [number for number in auction_numbers if number not in done_numbers]
 
 
 def get_next_pending_items(

@@ -1,3 +1,4 @@
+import json
 from datetime import datetime, timezone
 
 from sqlalchemy import select
@@ -161,4 +162,42 @@ def save_auction_detail(
                         )
                     )
 
+        session.commit()
+
+
+def get_specification_items_by_auctions(auction_numbers: list[str]) -> list[SpecificationItemRecord]:
+    """Позиции спецификации этих закупок: сначала порядок номеров, внутри — position_index."""
+    with SessionLocal() as session:
+        items = session.scalars(
+            select(SpecificationItemRecord).where(
+                SpecificationItemRecord.auction_number.in_(auction_numbers)
+            )
+        ).all()
+
+        auction_order = {number: index for index, number in enumerate(auction_numbers)}
+        sorted_items = sorted(
+            items,
+            key=lambda item: (auction_order.get(item.auction_number, 10**9), item.position_index),
+        )
+        for item in sorted_items:
+            session.expunge(item)
+        return sorted_items
+
+
+def save_sku_card_details(
+    specification_item_id: int,
+    model: str | None,
+    manufacturer: str | None,
+    characteristics: list[dict],
+) -> None:
+    """Пишет модель, производителя и характеристики. sku_scraped_at отмечает, что страница открылась."""
+    with SessionLocal() as session:
+        item = session.get(SpecificationItemRecord, specification_item_id)
+        if item is None:
+            raise ValueError(f"specification_item_id={specification_item_id} не найден в БД")
+
+        item.sku_model = model
+        item.sku_manufacturer = manufacturer
+        item.sku_characteristics_json = json.dumps(characteristics, ensure_ascii=False)
+        item.sku_scraped_at = datetime.now(timezone.utc)
         session.commit()

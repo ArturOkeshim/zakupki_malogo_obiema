@@ -68,6 +68,12 @@ class SpecificationItemRecord(Base):
     name: Mapped[str] = mapped_column(Text, nullable=False)
     sku_url: Mapped[str | None] = mapped_column(Text, nullable=True)
     image_url: Mapped[str | None] = mapped_column(Text, nullable=True)
+    # С карточки СТЕ на zakupki.mos.ru. Пустая модель при заполненном sku_scraped_at
+    # значит: страницу уже открывали, строки «Модель» там не было.
+    sku_model: Mapped[str | None] = mapped_column(Text, nullable=True)
+    sku_manufacturer: Mapped[str | None] = mapped_column(Text, nullable=True)
+    sku_characteristics_json: Mapped[str | None] = mapped_column(Text, nullable=True)
+    sku_scraped_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     quantity_text: Mapped[str | None] = mapped_column(String(100), nullable=True)
     quantity: Mapped[float | None] = mapped_column(Numeric(15, 3), nullable=True)
     unit: Mapped[str | None] = mapped_column(String(50), nullable=True)

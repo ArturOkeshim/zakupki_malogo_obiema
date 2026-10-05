@@ -1,5 +1,6 @@
 """Общая сборка INPUT для export (Claude и Yandex)."""
 
+import json
 import urllib.parse
 from datetime import datetime, timezone
 
@@ -13,6 +14,19 @@ def build_input_payload(pairs: list) -> dict:
         if tender_total is None and spec_item.price_per_unit is not None and spec_item.quantity is not None:
             tender_total = float(spec_item.price_per_unit) * float(spec_item.quantity)
 
+        # В поиск кладём название, модель и производителя. Все характеристики туда не пишем:
+        # запрос станет слишком узким и выдача будет пустой.
+        search_parts = [spec_item.name.strip()]
+        if spec_item.sku_model and spec_item.sku_model.strip():
+            search_parts.append(spec_item.sku_model.strip())
+        if spec_item.sku_manufacturer and spec_item.sku_manufacturer.strip():
+            search_parts.append(spec_item.sku_manufacturer.strip())
+        search_text = " ".join(search_parts)
+
+        characteristics = []
+        if spec_item.sku_characteristics_json:
+            characteristics = json.loads(spec_item.sku_characteristics_json)
+
         items.append(
             {
                 "specification_item_id": spec_item.id,
@@ -23,6 +37,9 @@ def build_input_payload(pairs: list) -> dict:
                 ),
                 "position_index": spec_item.position_index,
                 "name": spec_item.name,
+                "model": spec_item.sku_model,
+                "manufacturer": spec_item.sku_manufacturer,
+                "characteristics": characteristics,
                 "quantity": float(spec_item.quantity) if spec_item.quantity is not None else None,
                 "unit": spec_item.unit,
                 "tender_price_per_unit": (
@@ -31,7 +48,7 @@ def build_input_payload(pairs: list) -> dict:
                 "tender_line_total": float(tender_total) if tender_total is not None else None,
                 "yandex_search_url": (
                     "https://yandex.ru/search?products_mode=1&text="
-                    + urllib.parse.quote(spec_item.name.strip())
+                    + urllib.parse.quote(search_text)
                 ),
             }
         )

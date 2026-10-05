@@ -18,6 +18,7 @@ import json
 import os
 import sys
 import time
+from contextlib import contextmanager
 from pathlib import Path
 
 from cursor_sdk import (
@@ -196,16 +197,8 @@ def apply_outbound_proxy() -> None:
     print(f"Без прокси: {os.environ['NO_PROXY']}")
 
 
-def ask_agent(prompt: str) -> str:
-    """
-    Один запрос — один новый агент на этом компьютере.
-
-    ЗАМЕТКА ДЛЯ ОБУЧЕНИЯ:
-    Скрипт поднимает локальный мост и создаёт агента в папке проекта.
-    local= значит «работать здесь», а не на сервере Cursor.
-    trust_env=False — не пускать запрос к локальному мосту через системный прокси
-    Windows. Иначе прокси отвечает 503 и агент не стартует.
-    """
+def prepare_agent_runtime() -> str:
+    """Настраивает прокси и возвращает ключ. Вызывать до запуска моста."""
     install_windows_bridge_fix()
     apply_outbound_proxy()
     install_node_proxy_preload()
@@ -218,52 +211,111 @@ def ask_agent(prompt: str) -> str:
             "3. Добавьте в .env строку CURSOR_API_KEY=...\n"
             "4. Снова запустите: python ask_cursor_agent.py smoke"
         )
+    return api_key
 
+
+def make_agent_options(api_key: str) -> AgentOptions:
+    return AgentOptions(
+        api_key=api_key,
+        model=MODEL_ID,
+        # ЗАМЕТКА ДЛЯ ОБУЧЕНИЯ:
+        # webSearch — встроенный поиск со сниппетами, без открытия сайта.
+        # Его нет в списке инструментов, поэтому агент не может им «отделаться».
+        disallowed_tools=["webSearch"],
+        local=LocalAgentOptions(
+            cwd=PROJECT_ROOT,
+            # "project" читает .cursor/mcp.json в этой папке (там Playwright).
+            # "user" читает ~/.cursor/mcp.json, если он есть.
+            setting_sources=["user", "project"],
+        ),
+    )
+
+
+@contextmanager
+def agent_bridge():
+    """
+    Один мост на несколько товаров.
+
+    ЗАМЕТКА ДЛЯ ОБУЧЕНИЯ:
+    Мост — отдельная программа, через неё Python говорит с Cursor.
+    Агент — один разговор внутри моста. Новый агент не помнит предыдущий товар.
+    Мост при этом заново не запускаем.
+    """
+    api_key = prepare_agent_runtime()
     try:
         with CursorClient.launch_bridge(
             workspace=PROJECT_ROOT,
             http_client=DefaultHttpxClient(trust_env=False),
         ) as client:
-            options = AgentOptions(
-                api_key=api_key,
-                model=MODEL_ID,
-                # ЗАМЕТКА ДЛЯ ОБУЧЕНИЯ:
-                # webSearch — встроенный поиск со сниппетами, без открытия сайта.
-                # Его нет в списке инструментов, поэтому агент не может им «отделаться».
-                disallowed_tools=["webSearch"],
-                local=LocalAgentOptions(
-                    cwd=PROJECT_ROOT,
-                    # "project" читает .cursor/mcp.json в этой папке (там Playwright).
-                    # "user" читает ~/.cursor/mcp.json, если он есть.
-                    setting_sources=["user", "project"],
-                ),
-            )
-            with client.agents.create(options) as agent:
-                run = agent.send(prompt)
-                status_notes: list[str] = []
-                for message in run.messages():
-                    if getattr(message, "type", "") != "status":
-                        continue
-                    note = getattr(message, "message", "") or ""
-                    if note:
-                        status_notes.append(note)
-                result = run.wait()
+            yield client, api_key
     except CursorAgentError as error:
         raise SystemExit(
             f"Агент не стартовал: {error.message}\n"
             f"Можно повторить: {error.is_retryable}"
         ) from error
 
+
+def collect_answer(run) -> str:
+    """Дожидается конца прогона и возвращает текст ответа. Пустой текст тоже возвращает."""
+    status_notes: list[str] = []
+    for message in run.messages():
+        if getattr(message, "type", "") != "status":
+            continue
+        note = getattr(message, "message", "") or ""
+        if note:
+            status_notes.append(note)
+    result = run.wait()
+
     if result.status != "finished":
         details = "\n".join(status_notes)
         raise SystemExit(
             f"Агент закончил со статусом {result.status}, id={result.id}\n{details}"
         )
+    return result.result or ""
 
-    answer = result.result or ""
-    if not answer.strip():
-        raise SystemExit(f"Пустой ответ. id прогона: {result.id}")
-    return answer
+
+def answer_is_json(raw: str) -> bool:
+    try:
+        json.loads(extract_json_text(raw))
+        return True
+    except json.JSONDecodeError:
+        return False
+
+
+def ask_on_bridge(client, api_key: str, prompt: str, retry_if_not_json: bool = False) -> str:
+    """
+    Новый агент в уже открытом мосте. После ответа агент закрывается.
+
+    ЗАМЕТКА ДЛЯ ОБУЧЕНИЯ:
+    Второй agent.send идёт в тот же разговор. Агент помнит поиск
+    и заново сайты не открывает — его просят только переписать ответ в JSON.
+    """
+    options = make_agent_options(api_key)
+    with client.agents.create(options) as agent:
+        answer = collect_answer(agent.send(prompt))
+        if not retry_if_not_json:
+            if not answer.strip():
+                raise SystemExit("Пустой ответ агента.")
+            return answer
+
+        if answer_is_json(answer):
+            return answer
+
+        print("Ответ не JSON. Прошу тот же агент вернуть только JSON, без нового поиска.")
+        DATA_DIR.mkdir(parents=True, exist_ok=True)
+        (DATA_DIR / "response_raw.txt").write_text(answer, encoding="utf-8")
+        retry_prompt = (
+            "Предыдущий ответ не является JSON. Не открывай сайты заново. "
+            "Верни только один JSON-объект по схеме из первого сообщения, "
+            "без markdown и без текста до и после."
+        )
+        return collect_answer(agent.send(retry_prompt))
+
+
+def ask_agent(prompt: str) -> str:
+    """Один запрос: мост поднимается только ради этого агента."""
+    with agent_bridge() as (client, api_key):
+        return ask_on_bridge(client, api_key, prompt)
 
 
 def cmd_smoke() -> None:
