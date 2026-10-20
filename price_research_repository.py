@@ -1,7 +1,7 @@
 import json
 from datetime import datetime, timezone
 
-from sqlalchemy import select
+from sqlalchemy import and_, select
 
 from db.models import AuctionRecord, PurchaseRecord, SpecificationItemRecord
 from db.session import SessionLocal
@@ -14,13 +14,50 @@ from price_evaluate import (
 
 # Одна позиция на запуск агента: чужие строки в том же промпте сбивают поиск.
 BATCH_SIZE_DEFAULT = 1
+RETRYABLE_FAIL_REASONS = frozenset({"captcha", "card_not_opened"})
+KNOWN_FAIL_REASONS = frozenset({"captcha", "card_not_opened", "no_match", "api_no_card"})
+
+
+def api_fallback_clause():
+    """Search API: после одного браузерного провала капчи или «карточка не открылась»."""
+    return and_(
+        SpecificationItemRecord.price_research_status == "not_found",
+        SpecificationItemRecord.market_fail_reason.in_(RETRYABLE_FAIL_REASONS),
+        SpecificationItemRecord.market_browser_attempts >= 1,
+        SpecificationItemRecord.market_api_used.is_(False),
+    )
+
+
+def infer_fail_reason(row: dict) -> str:
+    explicit = row.get("fail_reason")
+    if explicit in KNOWN_FAIL_REASONS:
+        return explicit
+    note = f"{row.get('note') or ''} {json.dumps(row.get('sources') or [], ensure_ascii=False)}"
+    lowered = note.lower()
+    if (
+        "капч" in lowered
+        or "smartcaptcha" in lowered
+        or "я не робот" in lowered
+        or "403" in lowered
+        or "доступ" in lowered and "запрещ" in lowered
+    ):
+        return "captcha"
+    if (
+        "не откры" in lowered
+        or "snapshot" in lowered
+        or "клик" in lowered
+        or "карточк" in lowered and "не" in lowered
+    ):
+        return "card_not_opened"
+    return "no_match"
 
 
 def get_unfinished_auction_numbers() -> list[str]:
     """
     Закупки, которые пайплайн уже сохранил, но не довёл до цены.
     Это нет спецификации или есть позиции со статусом pending.
-    Уже оценённые закупки сюда не входят.
+    Уже оценённые закупки сюда не входят, кроме not_found,
+    которые ещё ждут Search API после капчи или неоткрытой карточки.
     """
     with SessionLocal() as session:
         purchases = session.scalars(
@@ -43,11 +80,18 @@ def get_unfinished_auction_numbers() -> list[str]:
                 .distinct()
             ).all()
         )
+        retry_numbers = set(
+            session.scalars(
+                select(SpecificationItemRecord.auction_number)
+                .where(api_fallback_clause())
+                .distinct()
+            ).all()
+        )
 
     unfinished = []
     for auction_number, scraped_at in latest_scraped_at.items():
         detail_missing = auction_number not in done_numbers
-        price_missing = auction_number in pending_numbers
+        price_missing = auction_number in pending_numbers or auction_number in retry_numbers
         if detail_missing or price_missing:
             unfinished.append((scraped_at, auction_number))
 
@@ -118,9 +162,119 @@ def get_next_pending_items(
         return result
 
 
+def load_pairs_by_item_ids(item_ids: list[int]) -> list[tuple[AuctionRecord, SpecificationItemRecord]]:
+    if not item_ids:
+        return []
+    with SessionLocal() as session:
+        items = session.scalars(
+            select(SpecificationItemRecord).where(SpecificationItemRecord.id.in_(item_ids))
+        ).all()
+        by_id = {item.id: item for item in items}
+        auction_numbers = {item.auction_number for item in items}
+        auctions = session.scalars(
+            select(AuctionRecord).where(AuctionRecord.auction_number.in_(auction_numbers))
+        ).all()
+        auction_map = {auction.auction_number: auction for auction in auctions}
+        expunged: set[str] = set()
+        result: list[tuple[AuctionRecord, SpecificationItemRecord]] = []
+        for item_id in item_ids:
+            item = by_id.get(item_id)
+            if item is None:
+                continue
+            auction = auction_map.get(item.auction_number)
+            if auction is None:
+                continue
+            if auction.auction_number not in expunged:
+                session.expunge(auction)
+                expunged.add(auction.auction_number)
+            session.expunge(item)
+            result.append((auction, item))
+        return result
+
+
+def requeue_retryable_browser(
+    auction_numbers: list[str] | None = None,
+) -> list[tuple[AuctionRecord, SpecificationItemRecord]]:
+    """not_found после первого захода из‑за капчи или клика — снова pending."""
+    with SessionLocal() as session:
+        query = select(SpecificationItemRecord.id).where(
+            SpecificationItemRecord.price_research_status == "not_found",
+            SpecificationItemRecord.market_fail_reason.in_(RETRYABLE_FAIL_REASONS),
+            SpecificationItemRecord.market_browser_attempts == 1,
+            SpecificationItemRecord.market_api_used.is_(False),
+        )
+        if auction_numbers is not None:
+            query = query.where(SpecificationItemRecord.auction_number.in_(auction_numbers))
+        item_ids = list(session.scalars(query).all())
+        if not item_ids:
+            return []
+        items = session.scalars(
+            select(SpecificationItemRecord).where(SpecificationItemRecord.id.in_(item_ids))
+        ).all()
+        for item in items:
+            item.price_research_status = "pending"
+        session.commit()
+    return load_pairs_by_item_ids(item_ids)
+
+
+def mark_item_search_failed(
+    item_id: int,
+    *,
+    fail_reason: str,
+    search_stage: str,
+    note: str,
+) -> None:
+    """Два обрыва агента: позиция не pending, чтобы Search API / сводка её видели."""
+    reason = fail_reason if fail_reason in KNOWN_FAIL_REASONS else "card_not_opened"
+    with SessionLocal() as session:
+        item = session.get(SpecificationItemRecord, item_id)
+        if item is None:
+            return
+        if search_stage == "api":
+            item.market_api_used = True
+            if reason == "card_not_opened":
+                reason = "api_no_card"
+        else:
+            item.market_browser_attempts = (item.market_browser_attempts or 0) + 1
+        item.price_research_status = "not_found"
+        item.market_fail_reason = reason
+        item.market_confidence = "not_found"
+        item.market_note = note
+        session.commit()
+
+
+def get_api_fallback_items(
+    auction_numbers: list[str] | None = None,
+) -> list[tuple[AuctionRecord, SpecificationItemRecord]]:
+    """Капча или карточка не открылась с первого браузера — очередь на Search API."""
+    with SessionLocal() as session:
+        query = select(SpecificationItemRecord.id).where(api_fallback_clause())
+        if auction_numbers is not None:
+            query = query.where(SpecificationItemRecord.auction_number.in_(auction_numbers))
+        item_ids = list(session.scalars(query).all())
+    return load_pairs_by_item_ids(item_ids)
+
+
+def _sources_left_market(row: dict) -> bool:
+    from yandex_search_api import is_useless_price_url
+
+    for source in row.get("sources") or []:
+        if not isinstance(source, dict):
+            continue
+        url = str(source.get("url") or "")
+        lowered = url.lower()
+        if not lowered.startswith("http") or "market.yandex.ru" in lowered:
+            continue
+        if is_useless_price_url(url):
+            continue
+        return True
+    return False
+
+
 def import_price_research_batch(
     payload: dict,
     agent_log: str | None = None,
+    search_stage: str = "browser",
 ) -> tuple[int, list[str]]:
     """
     Сохраняет ответ нейросети. Возвращает (число обновлённых строк, auction_number для пересчёта).
@@ -157,9 +311,18 @@ def import_price_research_batch(
             if confidence == "not_found" or market_price is None:
                 item.price_research_status = "not_found"
                 item.market_price_per_unit = None
+                item.market_fail_reason = infer_fail_reason(row)
+                if search_stage == "api" and item.market_fail_reason == "card_not_opened":
+                    item.market_fail_reason = "api_no_card"
             else:
                 item.price_research_status = "priced"
                 item.market_price_per_unit = float(market_price)
+                item.market_fail_reason = None
+
+            if search_stage in {"browser", "retry"}:
+                item.market_browser_attempts = (item.market_browser_attempts or 0) + 1
+            if search_stage == "api" or _sources_left_market(row):
+                item.market_api_used = True
 
             item.market_confidence = confidence
             item.market_item_type = row.get("item_type")
@@ -253,3 +416,43 @@ def evaluate_ready_auctions(auction_numbers: list[str] | None = None) -> list[tu
             results.append((auction_number, result))
 
     return results
+
+
+def get_item_search_snapshot(item_id: int) -> dict | None:
+    with SessionLocal() as session:
+        item = session.get(SpecificationItemRecord, item_id)
+        if item is None:
+            return None
+        return {
+            "id": item.id,
+            "name": item.name,
+            "auction_number": item.auction_number,
+            "status": item.price_research_status,
+            "fail_reason": item.market_fail_reason,
+            "attempts": item.market_browser_attempts or 0,
+            "api_used": bool(item.market_api_used),
+            "note": item.market_note,
+        }
+
+
+def snapshot_items_for_auctions(auction_numbers: list[str]) -> list[dict]:
+    if not auction_numbers:
+        return []
+    with SessionLocal() as session:
+        items = session.scalars(
+            select(SpecificationItemRecord).where(
+                SpecificationItemRecord.auction_number.in_(auction_numbers)
+            )
+        ).all()
+        return [
+            {
+                "id": item.id,
+                "name": item.name,
+                "auction_number": item.auction_number,
+                "status": item.price_research_status,
+                "fail_reason": item.market_fail_reason,
+                "attempts": item.market_browser_attempts or 0,
+                "api_used": bool(item.market_api_used),
+            }
+            for item in items
+        ]

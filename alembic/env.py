@@ -15,6 +15,8 @@ from db.models import (  # noqa: F401
     AuctionRecord,
     DeliveryStageRecord,
     DeliveryStageRowRecord,
+    PriceSearchItemEventRecord,
+    PriceSearchRunRecord,
     PurchaseRecord,
     SpecificationItemRecord,
     WbOfferRecord,

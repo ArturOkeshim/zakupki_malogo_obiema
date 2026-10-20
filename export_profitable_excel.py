@@ -12,6 +12,8 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 
+from zipfile import BadZipFile
+
 from openpyxl import Workbook, load_workbook
 from openpyxl.styles import Alignment, Font
 from openpyxl.utils import get_column_letter
@@ -424,9 +426,13 @@ def upsert_claude_auctions(output_path: Path, auction_numbers: list[str]) -> int
     numbers = {auction.auction_number for auction in auctions}
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    if output_path.is_file():
-        workbook = load_workbook(output_path)
-    else:
+    workbook = None
+    if output_path.is_file() and output_path.stat().st_size > 0:
+        try:
+            workbook = load_workbook(output_path)
+        except BadZipFile:
+            workbook = None
+    if workbook is None:
         workbook = fresh
         autosize_columns(workbook["Тендеры"])
         autosize_columns(workbook["Позиции"])

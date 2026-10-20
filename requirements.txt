@@ -4,6 +4,7 @@ sqlalchemy
 alembic
 psycopg2-binary
 python-dotenv
+httpx
 openpyxl
 pydantic-ai
 pydantic-ai-harness

@@ -29,13 +29,15 @@ from price_research_repository import (
 PROJECT_ROOT = Path(__file__).resolve().parent
 DATA_DIR = PROJECT_ROOT / "data"
 PROMPT_PATH = PROJECT_ROOT / "prompts" / "price_research.txt"
+PROMPT_PATH_PYDANTIC = PROJECT_ROOT / "prompts" / "price_research_pydantic.txt"
 BATCH_JSON_PATH = DATA_DIR / "batch.json"
 BATCH_TXT_PATH = DATA_DIR / "batch.txt"
 RESPONSE_JSON_PATH = DATA_DIR / "response.json"
 
 
-def load_prompt_template() -> str:
-    return PROMPT_PATH.read_text(encoding="utf-8").strip()
+def load_prompt_template(prompt_path: Path | None = None) -> str:
+    path = prompt_path or PROMPT_PATH
+    return path.read_text(encoding="utf-8").strip()
 
 
 def build_claude_copy_paste(prompt: str, input_payload: dict) -> str:
@@ -43,19 +45,96 @@ def build_claude_copy_paste(prompt: str, input_payload: dict) -> str:
     return f"{prompt}\n{input_json}"
 
 
-def parse_response_text(raw: str) -> dict:
+def _extract_json_object(raw: str) -> str:
     text = raw.strip()
     if text.startswith("```"):
         text = text.strip("`")
         if text.lower().startswith("json"):
             text = text[4:].strip()
-    return json.loads(text)
+    start = text.find("{")
+    if start < 0:
+        return text
+    return text[start:]
 
 
-def build_agent_prompt(pairs: list) -> str:
+def _close_unbalanced_json(text: str) -> str:
+    """Haiku часто обрывает JSON на последней скобке позиции — не закрывает items и корень."""
+    in_string = False
+    escape = False
+    stack: list[str] = []
+    for char in text:
+        if in_string:
+            if escape:
+                escape = False
+            elif char == "\\":
+                escape = True
+            elif char == '"':
+                in_string = False
+            continue
+        if char == '"':
+            in_string = True
+        elif char in "{[":
+            stack.append(char)
+        elif char == "}" and stack and stack[-1] == "{":
+            stack.pop()
+        elif char == "]" and stack and stack[-1] == "[":
+            stack.pop()
+    repaired = text
+    if in_string:
+        repaired += '"'
+    closers = {"{": "}", "[": "]"}
+    repaired += "".join(closers[char] for char in reversed(stack))
+    return repaired
+
+
+def json_was_repaired(raw: str) -> bool:
+    """True, если сырой ответ сам не JSON, но парсер его восстановил."""
+    text = _extract_json_object(raw)
+    try:
+        json.loads(text)
+        return False
+    except json.JSONDecodeError:
+        try:
+            parse_response_text(raw)
+        except json.JSONDecodeError:
+            return False
+        return True
+
+
+def parse_response_text(raw: str) -> dict:
+    text = _extract_json_object(raw)
+    candidates = [text, _close_unbalanced_json(text)]
+    seen: set[str] = set()
+    last_error: json.JSONDecodeError | None = None
+    for candidate in candidates:
+        if candidate in seen:
+            continue
+        seen.add(candidate)
+        try:
+            payload = json.loads(candidate)
+        except json.JSONDecodeError as error:
+            last_error = error
+            continue
+        if isinstance(payload, dict):
+            return payload
+    if last_error is not None:
+        raise last_error
+    raise json.JSONDecodeError("Ответ не JSON-объект", text, 0)
+
+
+def build_agent_prompt(
+    pairs: list,
+    prompt_path: Path | None = None,
+    search_stage: str | None = None,
+    api_links_by_id: dict[int, list[dict]] | None = None,
+) -> str:
     """Текст одного запроса агенту. Пайплайн держит его в памяти и на диск не пишет."""
-    prompt = load_prompt_template()
-    input_payload = build_input_payload(pairs)
+    prompt = load_prompt_template(prompt_path)
+    input_payload = build_input_payload(
+        pairs,
+        search_stage=search_stage,
+        api_links_by_id=api_links_by_id,
+    )
     copy_paste = build_claude_copy_paste(prompt, input_payload)
     return (
         copy_paste

@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import DateTime, ForeignKey, Integer, Numeric, String, Text, UniqueConstraint, func
+from sqlalchemy import Boolean, DateTime, Float, ForeignKey, Integer, Numeric, String, Text, UniqueConstraint, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from db.base import Base
@@ -90,6 +90,11 @@ class SpecificationItemRecord(Base):
     # Размышления, вызовы браузера и итоговый JSON. Тот же текст, что в price_search_log.txt.
     market_agent_log: Mapped[str | None] = mapped_column(Text, nullable=True)
     market_analyzed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    # Сколько раз браузер уже искал эту позицию. Капча/карточка не открылась → Search API.
+    market_browser_attempts: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    # captcha | card_not_opened | no_match | api_no_card
+    market_fail_reason: Mapped[str | None] = mapped_column(String(30), nullable=True)
+    market_api_used: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     yandex_research_status: Mapped[str] = mapped_column(
         String(20), nullable=False, default="pending"
     )
@@ -167,3 +172,52 @@ class WbOfferRecord(Base):
         nullable=False,
         server_default=func.now(),
     )
+
+
+class PriceSearchRunRecord(Base):
+    """Один вызов поиска цен (шаг 4 пайплайна) для набора закупок."""
+
+    __tablename__ = "price_search_runs"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    started_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now()
+    )
+    finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    status: Mapped[str] = mapped_column(String(20), nullable=False, default="running")
+    concurrency: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
+    auction_numbers_json: Mapped[str] = mapped_column(Text, nullable=False, default="[]")
+    search_duration_sec: Mapped[float | None] = mapped_column(Float, nullable=True)
+    item_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    priced_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    not_found_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    pending_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    summary_json: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+
+class PriceSearchItemEventRecord(Base):
+    """Один заход агента по позиции внутри прогона поиска."""
+
+    __tablename__ = "price_search_item_events"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    run_id: Mapped[int] = mapped_column(
+        ForeignKey("price_search_runs.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    specification_item_id: Mapped[int] = mapped_column(Integer, nullable=False)
+    auction_number: Mapped[str] = mapped_column(String(50), nullable=False)
+    item_name: Mapped[str | None] = mapped_column(Text, nullable=True)
+    search_stage: Mapped[str] = mapped_column(String(20), nullable=False)
+    item_kind: Mapped[str] = mapped_column(String(20), nullable=False)
+    search_channel: Mapped[str] = mapped_column(String(20), nullable=False)
+    worker_number: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
+    started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    finished_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    duration_sec: Mapped[float] = mapped_column(Float, nullable=False)
+    outcome: Mapped[str] = mapped_column(String(20), nullable=False)
+    fail_reason: Mapped[str | None] = mapped_column(String(30), nullable=True)
+    error_type: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    found_on_attempt: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    json_repaired: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    http_403: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
