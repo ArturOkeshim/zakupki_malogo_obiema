@@ -87,6 +87,8 @@ class SpecificationItemRecord(Base):
     market_item_type: Mapped[str | None] = mapped_column(String(20), nullable=True)
     market_note: Mapped[str | None] = mapped_column(Text, nullable=True)
     market_sources_json: Mapped[str | None] = mapped_column(Text, nullable=True)
+    # Размышления, вызовы браузера и итоговый JSON. Тот же текст, что в price_search_log.txt.
+    market_agent_log: Mapped[str | None] = mapped_column(Text, nullable=True)
     market_analyzed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     yandex_research_status: Mapped[str] = mapped_column(
         String(20), nullable=False, default="pending"

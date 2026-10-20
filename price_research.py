@@ -52,6 +52,17 @@ def parse_response_text(raw: str) -> dict:
     return json.loads(text)
 
 
+def build_agent_prompt(pairs: list) -> str:
+    """Текст одного запроса агенту. Пайплайн держит его в памяти и на диск не пишет."""
+    prompt = load_prompt_template()
+    input_payload = build_input_payload(pairs)
+    copy_paste = build_claude_copy_paste(prompt, input_payload)
+    return (
+        copy_paste
+        + "\n\nНе изменяй файлы проекта. Верни только один JSON-объект в ответе."
+    )
+
+
 def write_batch_files(pairs: list) -> Path:
     """Пишет data/batch.txt: инструкция Claude и JSON позиций. Этот текст уходит агенту."""
     prompt = load_prompt_template()

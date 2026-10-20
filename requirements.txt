@@ -5,3 +5,6 @@ alembic
 psycopg2-binary
 python-dotenv
 openpyxl
+pydantic-ai
+pydantic-ai-harness
+logfire

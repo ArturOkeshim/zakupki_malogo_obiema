@@ -1,5 +1,7 @@
+import queue
 import random
 import re
+import threading
 import time
 
 from playwright.sync_api import Page, sync_playwright
@@ -331,41 +333,84 @@ def next_batch(skipped_this_run: set[str]):
     return batch
 
 
-def run_for_numbers(auction_numbers: list[str]) -> None:
+def run_for_numbers(auction_numbers: list[str], worker_count: int = 1) -> None:
     """
     Снимает спецификации только у переданных закупок.
     Если одну не удалось прочитать даже со второй попытки — останавливаемся.
+    worker_count — сколько браузеров работают одновременно. У каждого свой.
     """
+    if worker_count < 1:
+        raise SystemExit("worker_count должен быть не меньше 1.")
+
     purchases = get_purchases_by_numbers(auction_numbers)
     found_numbers = {purchase.auction_number for purchase in purchases}
     missing_numbers = [number for number in auction_numbers if number not in found_numbers]
     if missing_numbers:
         raise SystemExit(f"В БД нет карточек: {', '.join(missing_numbers)}")
 
-    with sync_playwright() as playwright:
-        browser, page = create_browser(playwright)
+    pending = queue.Queue()
+    for purchase in purchases:
+        pending.put(purchase)
+
+    browser_count = worker_count
+    if browser_count > len(purchases):
+        browser_count = len(purchases)
+
+    # Если один браузер не снял закупку со второй попытки, остальные тоже останавливаются.
+    stop_messages: list[str] = []
+
+    def worker(worker_number: int) -> None:
+        # ЗАМЕТКА ДЛЯ ОБУЧЕНИЯ:
+        # Страницу Playwright нельзя отдать в другой поток.
+        # Поэтому каждый поток сам открывает свой браузер.
         try:
-            for index, purchase in enumerate(purchases, start=1):
-                if process_purchase(page, purchase, index, save_on_error=False):
-                    pause_between_purchases()
-                    continue
+            _read_purchases_in_own_browser(worker_number)
+        except Exception as error:
+            stop_messages.append(f"Браузер {worker_number} упал: {error}")
 
-                print("  Перезапускаю браузер и пробую эту закупку ещё раз...")
+    def _read_purchases_in_own_browser(worker_number: int) -> None:
+        with sync_playwright() as playwright:
+            browser, page = create_browser(playwright)
+            try:
+                while not stop_messages:
+                    try:
+                        purchase = pending.get_nowait()
+                    except queue.Empty:
+                        return
+
+                    if process_purchase(page, purchase, worker_number, save_on_error=False):
+                        pause_between_purchases()
+                        continue
+
+                    print("  Перезапускаю браузер и пробую эту закупку ещё раз...")
+                    browser.close()
+                    cooldown = random.uniform(RESTART_WAIT_MIN_SEC, RESTART_WAIT_MAX_SEC)
+                    print(f"  ожидание {cooldown:.1f} сек")
+                    time.sleep(cooldown)
+                    browser, page = create_browser(playwright)
+
+                    if process_purchase(page, purchase, worker_number, save_on_error=False):
+                        pause_between_purchases()
+                        continue
+
+                    stop_messages.append(
+                        f"Не удалось снять спецификацию {purchase.auction_number}. Остановка."
+                    )
+                    return
+            finally:
                 browser.close()
-                cooldown = random.uniform(RESTART_WAIT_MIN_SEC, RESTART_WAIT_MAX_SEC)
-                print(f"  ожидание {cooldown:.1f} сек")
-                time.sleep(cooldown)
-                browser, page = create_browser(playwright)
 
-                if process_purchase(page, purchase, index, save_on_error=False):
-                    pause_between_purchases()
-                    continue
+    print(f"Спецификации: браузеров одновременно — {browser_count}.")
+    threads = []
+    for worker_number in range(1, browser_count + 1):
+        thread = threading.Thread(target=worker, args=(worker_number,))
+        thread.start()
+        threads.append(thread)
+    for thread in threads:
+        thread.join()
 
-                raise SystemExit(
-                    f"Не удалось снять спецификацию {purchase.auction_number}. Остановка."
-                )
-        finally:
-            browser.close()
+    if stop_messages:
+        raise SystemExit(stop_messages[0])
 
 
 def main() -> None:

@@ -13,7 +13,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from openpyxl import Workbook, load_workbook
-from openpyxl.styles import Font
+from openpyxl.styles import Alignment, Font
 from openpyxl.utils import get_column_letter
 from sqlalchemy import select
 
@@ -25,6 +25,16 @@ from price_evaluate import line_cost_for_item, tender_line_total
 PROJECT_ROOT = Path(__file__).resolve().parent
 DEFAULT_OUTPUT_CLAUDE = PROJECT_ROOT / "data" / "tenders_claude.xlsx"
 DEFAULT_OUTPUT_YANDEX = PROJECT_ROOT / "data" / "tenders_yandex.xlsx"
+
+
+def excel_agent_log(text: str | None) -> str | None:
+    """Excel не принимает ячейку длиннее 32767 символов."""
+    if text is None:
+        return None
+    limit = 32000
+    if len(text) <= limit:
+        return text
+    return text[:limit] + "\n… обрезано для Excel"
 
 
 def fit_status_label(fit_status: str | None) -> str:
@@ -265,6 +275,7 @@ def write_positions_sheet(sheet, auctions, items_by_auction, latest_purchases, s
             "Тип",
             "Комментарий",
             "Ссылки на источники",
+            "Ход агента",
         ]
     sheet.append(headers)
     for cell in sheet[1]:
@@ -361,8 +372,11 @@ def write_positions_sheet(sheet, auctions, items_by_auction, latest_purchases, s
                     item.market_item_type,
                     item.market_note,
                     sources_to_urls(item.market_sources_json),
+                    excel_agent_log(item.market_agent_log),
                 ]
             )
+            log_cell = sheet.cell(sheet.max_row, len(headers))
+            log_cell.alignment = Alignment(wrap_text=True, vertical="top")
 
     autosize_columns(sheet)
 
@@ -421,6 +435,11 @@ def upsert_claude_auctions(output_path: Path, auction_numbers: list[str]) -> int
 
     if "Тендеры" not in workbook.sheetnames or "Позиции" not in workbook.sheetnames:
         raise SystemExit(f"В {output_path.name} нет листов «Тендеры» и «Позиции»")
+
+    positions = workbook["Позиции"]
+    if positions.cell(1, positions.max_column).value != "Ход агента":
+        header_cell = positions.cell(1, positions.max_column + 1, "Ход агента")
+        header_cell.font = Font(bold=True)
 
     _drop_auction_rows(workbook["Тендеры"], numbers)
     _append_rows(workbook["Тендеры"], summary_rows)

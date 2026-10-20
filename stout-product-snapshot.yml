@@ -1,0 +1,308 @@
+- generic [ref=f7e2]:
+  - generic [ref=f7e6]:
+    - navigation [ref=f7e7]:
+      - generic [ref=f7e8]:
+        - generic [ref=f7e9]:
+          - link:
+            - /url: /
+          - link [ref=f7e10] [cursor=pointer]:
+            - /url: /
+            - img "Stout" [ref=f7e11]
+          - generic [ref=f7e12]:
+            - button [ref=f7e13] [cursor=pointer]
+            - text: Меню
+        - generic [ref=f7e18]:
+          - link "Корзина 0" [ref=f7e19] [cursor=pointer]:
+            - /url: /basket/
+            - img "Корзина" [ref=f7e20]
+            - generic [ref=f7e21]: "0"
+          - link "Избранное 0" [ref=f7e22] [cursor=pointer]:
+            - /url: /wishlist/
+            - img "Избранное" [ref=f7e23]
+            - generic [ref=f7e25]: "0"
+          - link "Сравнение 0" [ref=f7e26] [cursor=pointer]:
+            - /url: /compare/
+            - img "Сравнение" [ref=f7e27]
+            - generic [ref=f7e29]: "0"
+          - generic [ref=f7e30]:
+            - text: "Ваш город:"
+            - generic [ref=f7e31] [cursor=pointer]: Москва
+      - generic [ref=f7e35]:
+        - searchbox "Поиск" [ref=f7e36]
+        - img [ref=f7e37] [cursor=pointer]
+    - generic [ref=f7e39]:
+      - link "Главная" [ref=f7e41] [cursor=pointer]:
+        - /url: /
+      - link "Каталог" [ref=f7e44] [cursor=pointer]:
+        - /url: /catalog/
+      - generic [ref=f7e46]: Гибкие подводки
+    - generic [ref=f7e48]:
+      - generic [ref=f7e50]:
+        - heading "Гибкая подводка для воды STOUT ВР 1/2 х ВР 1/2, длина 400 мм" [level=1] [ref=f7e51]
+        - generic [ref=f7e52]: SHF-0115-081515
+      - generic [ref=f7e53]:
+        - text: prev next
+        - generic [ref=f7e80]:
+          - button [ref=f7e81] [cursor=pointer]
+          - button [ref=f7e82] [cursor=pointer]
+          - button [ref=f7e83] [cursor=pointer]
+        - generic [ref=f7e85]:
+          - generic [ref=f7e88]:
+            - link [ref=f7e91] [cursor=pointer]:
+              - /url: "#"
+            - link [ref=f7e93] [cursor=pointer]:
+              - /url: "#"
+            - link [ref=f7e96] [cursor=pointer]:
+              - /url: "#"
+          - generic [ref=f7e99]:
+            - generic [ref=f7e100]: Коротко о продукте
+            - generic [ref=f7e102]:
+              - generic [ref=f7e103]: Температура транспортировки и хранения, °С
+              - generic [ref=f7e105]: От -50 до + 50
+            - generic [ref=f7e106]:
+              - generic [ref=f7e107]: Направление
+              - generic [ref=f7e109]: Инженерная сантехника
+            - generic [ref=f7e110]:
+              - generic [ref=f7e111]: Стандарт подключения, дюйм
+              - generic [ref=f7e113]: 1/2
+            - generic [ref=f7e114]:
+              - generic [ref=f7e115]: Подгруппа
+              - generic [ref=f7e117]: подводка гибкая
+            - generic [ref=f7e118]:
+              - generic [ref=f7e119]: Дополнительно
+              - generic [ref=f7e121]: внутренняя резьба
+          - generic [ref=f7e122] [cursor=pointer]: Все характеристики
+          - generic [ref=f7e123]:
+            - generic [ref=f7e124]: 492 ₽
+            - link "Купить" [ref=f7e128] [cursor=pointer]:
+              - /url: https://www.teremonline.ru/product/stout-shf-vv-gibkaya-podvodka-dlya-vody-vr-1-2-kh-vr-1-2-dlina-400-mm/?utm_source=stout&utm_medium=button_buy&utm_campaign=stout
+      - tablist [ref=f7e129]:
+        - article
+        - navigation [ref=f7e130]
+        - tabpanel [ref=f7e132]:
+          - generic [ref=f7e133]:
+            - generic [ref=f7e134]:
+              - generic [ref=f7e135]: Температура транспортировки и хранения, °С
+              - generic [ref=f7e137]: От -50 до + 50
+            - generic [ref=f7e138]:
+              - generic [ref=f7e139]: Направление
+              - generic [ref=f7e141]: Инженерная сантехника
+            - generic [ref=f7e142]:
+              - generic [ref=f7e143]: Стандарт подключения, дюйм
+              - generic [ref=f7e145]: 1/2
+            - generic [ref=f7e146]:
+              - generic [ref=f7e147]: Подгруппа
+              - generic [ref=f7e149]: подводка гибкая
+            - generic [ref=f7e150]:
+              - generic [ref=f7e151]: Дополнительно
+              - generic [ref=f7e153]: внутренняя резьба
+            - generic [ref=f7e154]:
+              - generic [ref=f7e155]: Назначение
+              - generic [ref=f7e157]: для водоснабжения
+            - generic [ref=f7e158]:
+              - generic [ref=f7e159]: Тип изделия
+              - generic [ref=f7e161]: подводка
+            - generic [ref=f7e162]:
+              - generic [ref=f7e163]: Длина, м
+              - generic [ref=f7e165]: "0.4"
+            - generic [ref=f7e166]:
+              - generic [ref=f7e167]: Основной материал
+              - generic [ref=f7e169]: EPDM, нержавеющая сталь
+            - generic [ref=f7e170]:
+              - generic [ref=f7e171]: Гарантия, мес
+              - generic [ref=f7e173]: "24"
+            - generic [ref=f7e174]:
+              - generic [ref=f7e175]: Серия
+              - generic [ref=f7e177]: SHF
+            - generic [ref=f7e178]:
+              - generic [ref=f7e179]: Диапазон рабочей температуры, °С
+              - generic [ref=f7e181]: до +70
+            - generic [ref=f7e182]:
+              - generic [ref=f7e183]: Дополнительно
+              - generic [ref=f7e185]: внутренняя резьба
+      - generic [ref=f7e186]:
+        - heading "Вам может понадобиться" [level=2] [ref=f7e187]
+        - generic [ref=f7e191]:
+          - article [ref=f7e193]:
+            - generic [ref=f7e195]:
+              - generic [ref=f7e196]: Арт.SFP-0011-001216
+              - generic [ref=f7e198]:
+                - link:
+                  - /url: "#"
+                  - img [ref=f7e199] [cursor=pointer]
+                - link [ref=f7e201] [cursor=pointer]:
+                  - /url: "#"
+            - generic [ref=f7e204]:
+              - generic [ref=f7e206]:
+                - link [ref=f7e209] [cursor=pointer]:
+                  - /url: /catalog/truby-i-fitingi/sistema-metalloplastikovykh-trub-i-fitingov/press-fitingi/ugolniki-s-naruzhnoy-rezboy-press-fitingi-dlya-metalloplastikovykh-trub/stout-ugolnikperekhodnik-s-naruzhnoy-rezboy-12kh16-dlya-metalloplastikovykh-trub-pressovoy/
+                  - img "STOUT Угольник-переходник с наружной резьбой 1/2\"х16 для металлопластиковых труб прессовой" [ref=f7e211]
+                - link [ref=f7e214] [cursor=pointer]:
+                  - /url: /catalog/truby-i-fitingi/sistema-metalloplastikovykh-trub-i-fitingov/press-fitingi/ugolniki-s-naruzhnoy-rezboy-press-fitingi-dlya-metalloplastikovykh-trub/stout-ugolnikperekhodnik-s-naruzhnoy-rezboy-12kh16-dlya-metalloplastikovykh-trub-pressovoy/
+                  - img "STOUT Угольник-переходник с наружной резьбой 1/2\"х16 для металлопластиковых труб прессовой" [ref=f7e216]
+                - link [ref=f7e219] [cursor=pointer]:
+                  - /url: /catalog/truby-i-fitingi/sistema-metalloplastikovykh-trub-i-fitingov/press-fitingi/ugolniki-s-naruzhnoy-rezboy-press-fitingi-dlya-metalloplastikovykh-trub/stout-ugolnikperekhodnik-s-naruzhnoy-rezboy-12kh16-dlya-metalloplastikovykh-trub-pressovoy/
+                  - img "STOUT Угольник-переходник с наружной резьбой 1/2\"х16 для металлопластиковых труб прессовой" [ref=f7e221]
+                - link [ref=f7e224] [cursor=pointer]:
+                  - /url: /catalog/truby-i-fitingi/sistema-metalloplastikovykh-trub-i-fitingov/press-fitingi/ugolniki-s-naruzhnoy-rezboy-press-fitingi-dlya-metalloplastikovykh-trub/stout-ugolnikperekhodnik-s-naruzhnoy-rezboy-12kh16-dlya-metalloplastikovykh-trub-pressovoy/
+                  - img "STOUT Угольник-переходник с наружной резьбой 1/2\"х16 для металлопластиковых труб прессовой" [ref=f7e226]
+                - link [ref=f7e229] [cursor=pointer]:
+                  - /url: /catalog/truby-i-fitingi/sistema-metalloplastikovykh-trub-i-fitingov/press-fitingi/ugolniki-s-naruzhnoy-rezboy-press-fitingi-dlya-metalloplastikovykh-trub/stout-ugolnikperekhodnik-s-naruzhnoy-rezboy-12kh16-dlya-metalloplastikovykh-trub-pressovoy/
+                  - img "STOUT Угольник-переходник с наружной резьбой 1/2\"х16 для металлопластиковых труб прессовой" [ref=f7e231]
+                - link [ref=f7e234] [cursor=pointer]:
+                  - /url: /catalog/truby-i-fitingi/sistema-metalloplastikovykh-trub-i-fitingov/press-fitingi/ugolniki-s-naruzhnoy-rezboy-press-fitingi-dlya-metalloplastikovykh-trub/stout-ugolnikperekhodnik-s-naruzhnoy-rezboy-12kh16-dlya-metalloplastikovykh-trub-pressovoy/
+                  - img "STOUT Угольник-переходник с наружной резьбой 1/2\"х16 для металлопластиковых труб прессовой" [ref=f7e236]
+                - link [ref=f7e239] [cursor=pointer]:
+                  - /url: /catalog/truby-i-fitingi/sistema-metalloplastikovykh-trub-i-fitingov/press-fitingi/ugolniki-s-naruzhnoy-rezboy-press-fitingi-dlya-metalloplastikovykh-trub/stout-ugolnikperekhodnik-s-naruzhnoy-rezboy-12kh16-dlya-metalloplastikovykh-trub-pressovoy/
+                  - img "STOUT Угольник-переходник с наружной резьбой 1/2\"х16 для металлопластиковых труб прессовой" [ref=f7e241]
+                - link [ref=f7e244] [cursor=pointer]:
+                  - /url: /catalog/truby-i-fitingi/sistema-metalloplastikovykh-trub-i-fitingov/press-fitingi/ugolniki-s-naruzhnoy-rezboy-press-fitingi-dlya-metalloplastikovykh-trub/stout-ugolnikperekhodnik-s-naruzhnoy-rezboy-12kh16-dlya-metalloplastikovykh-trub-pressovoy/
+                  - img "STOUT Угольник-переходник с наружной резьбой 1/2\"х16 для металлопластиковых труб прессовой" [ref=f7e246]
+              - generic [ref=f7e247]:
+                - button [ref=f7e248] [cursor=pointer]
+                - button [ref=f7e249] [cursor=pointer]
+                - button [ref=f7e250] [cursor=pointer]
+                - button [ref=f7e251] [cursor=pointer]
+                - button [ref=f7e252] [cursor=pointer]
+                - button [ref=f7e253] [cursor=pointer]
+                - button [ref=f7e254] [cursor=pointer]
+                - button [ref=f7e255] [cursor=pointer]
+            - link "Угольник-переходник STOUT с наружной резьбой 1/2 х16 для металлопластиковых труб прессовой" [ref=f7e256] [cursor=pointer]:
+              - /url: /catalog/truby-i-fitingi/sistema-metalloplastikovykh-trub-i-fitingov/press-fitingi/ugolniki-s-naruzhnoy-rezboy-press-fitingi-dlya-metalloplastikovykh-trub/stout-ugolnikperekhodnik-s-naruzhnoy-rezboy-12kh16-dlya-metalloplastikovykh-trub-pressovoy/
+            - generic [ref=f7e258]:
+              - strong [ref=f7e260]: "500"
+              - link "Купить" [ref=f7e264] [cursor=pointer]:
+                - /url: https://www.teremonline.ru/product/stout-ugolnik-perekhodnik-s-naruzhnoy-rezboy-1-2-kh16-dlya-metalloplastikovykh-trub-pressovoy/?utm_source=stout&utm_medium=button_buy&utm_campaign=stout
+          - article [ref=f7e268]:
+            - generic [ref=f7e270]:
+              - generic [ref=f7e271]: Арт.32295-01
+              - generic [ref=f7e273]:
+                - link:
+                  - /url: "#"
+                  - img [ref=f7e274] [cursor=pointer]
+                - link [ref=f7e276] [cursor=pointer]:
+                  - /url: "#"
+            - generic [ref=f7e279]:
+              - link:
+                - /url: /catalog/kotly/zapasnye-chasti-dlya-elektricheskikh-kotlov/stout-3229501-stout-plata-6-rele-evan-expertstout-idc14/
+            - link "Плата 6 реле ЭВАН EXPERT/STOUT IDC-14" [ref=f7e280] [cursor=pointer]:
+              - /url: /catalog/kotly/zapasnye-chasti-dlya-elektricheskikh-kotlov/stout-3229501-stout-plata-6-rele-evan-expertstout-idc14/
+            - generic [ref=f7e282]:
+              - strong [ref=f7e284]: 13 813
+              - link "В корзину" [ref=f7e288] [cursor=pointer]:
+                - /url: /catalog/kotly/zapasnye-chasti-dlya-elektricheskikh-kotlov/stout-3229501-stout-plata-6-rele-evan-expertstout-idc14/
+          - article [ref=f7e292]:
+            - generic [ref=f7e294]:
+              - generic [ref=f7e295]: Арт.PH.76.1750.8.636.BL.9005
+              - generic [ref=f7e297]:
+                - link:
+                  - /url: "#"
+                  - img [ref=f7e298] [cursor=pointer]
+                - link [ref=f7e300] [cursor=pointer]:
+                  - /url: "#"
+            - generic [ref=f7e303]:
+              - link:
+                - /url: /catalog/otopitelnye-pribory/radiatory/radiatory-stalnye-trubchatye/radiator-stalnoy-trubchatyy-stout-warmmet-power-76h-shirina-1750-mm-sektsiy-8-tsvet-ral9005-tip-podk/
+            - 'link "Радиатор стальной трубчатый STOUT Warmmet Power 76H ширина 1750 мм секций 8 цвет RAL9005 тип подключения: нижнее левое" [ref=f7e304] [cursor=pointer]':
+              - /url: /catalog/otopitelnye-pribory/radiatory/radiatory-stalnye-trubchatye/radiator-stalnoy-trubchatyy-stout-warmmet-power-76h-shirina-1750-mm-sektsiy-8-tsvet-ral9005-tip-podk/
+            - generic [ref=f7e306]:
+              - strong [ref=f7e308]: 95 239
+              - link "В корзину" [ref=f7e312] [cursor=pointer]:
+                - /url: /catalog/otopitelnye-pribory/radiatory/radiatory-stalnye-trubchatye/radiator-stalnoy-trubchatyy-stout-warmmet-power-76h-shirina-1750-mm-sektsiy-8-tsvet-ral9005-tip-podk/
+          - article [ref=f7e316]:
+            - generic [ref=f7e318]:
+              - generic [ref=f7e319]: Арт.PH.76.1250.8.636.BR.9016
+              - generic [ref=f7e321]:
+                - link:
+                  - /url: "#"
+                  - img [ref=f7e322] [cursor=pointer]
+                - link [ref=f7e324] [cursor=pointer]:
+                  - /url: "#"
+            - generic [ref=f7e327]:
+              - link:
+                - /url: /catalog/otopitelnye-pribory/radiatory/radiatory-stalnye-trubchatye/radiator-stalnoy-trubchatyy-stout-warmmet-power-76h-shirina-1250-mm-sektsiy-8-tsvet-ral-9016-tip-pod-ph7612508636br9016/
+            - 'link "Радиатор стальной трубчатый STOUT Warmmet Power 76H ширина 1250 мм секций 8 цвет RAL 9016 тип подключения: нижнее правое" [ref=f7e328] [cursor=pointer]':
+              - /url: /catalog/otopitelnye-pribory/radiatory/radiatory-stalnye-trubchatye/radiator-stalnoy-trubchatyy-stout-warmmet-power-76h-shirina-1250-mm-sektsiy-8-tsvet-ral-9016-tip-pod-ph7612508636br9016/
+            - generic [ref=f7e330]:
+              - strong [ref=f7e332]: 83 233
+              - link "Купить" [ref=f7e336] [cursor=pointer]:
+                - /url: https://www.teremonline.ru/product/radiator-stalnoy-trubchatyy-stout-warmmet-power-76h-shirina-1250-mm-sektsiy-8-tsvet-ral-9016-tip-pod_1/?utm_source=stout&utm_medium=button_buy&utm_campaign=stout
+      - generic [ref=f7e339]:
+        - generic [ref=f7e340]:
+          - heading "Популярные категории" [level=2] [ref=f7e342]
+          - link "Смотреть все" [ref=f7e344] [cursor=pointer]:
+            - /url: /catalog/
+        - generic [ref=f7e351]:
+          - link [ref=f7e354] [cursor=pointer]:
+            - /url: /catalog/truby-i-fitingi/
+            - generic [ref=f7e355]:
+              - paragraph [ref=f7e356]: Трубы и фитинги
+              - img "Трубы и фитинги" [ref=f7e357]
+          - link [ref=f7e360] [cursor=pointer]:
+            - /url: /catalog/kollektory-i-kollektornye-gruppy/
+            - generic [ref=f7e361]:
+              - paragraph [ref=f7e362]: Коллекторы
+              - img "Коллекторы" [ref=f7e363]
+          - link [ref=f7e366] [cursor=pointer]:
+            - /url: /catalog/kotly/
+            - generic [ref=f7e367]:
+              - paragraph [ref=f7e368]: Котлы
+              - img "Котлы" [ref=f7e369]
+          - link [ref=f7e372] [cursor=pointer]:
+            - /url: /catalog/baki-membrannye/
+            - generic [ref=f7e373]:
+              - paragraph [ref=f7e374]: Мембранные баки
+              - img "Мембранные баки" [ref=f7e375]
+  - generic [ref=f7e381]:
+    - generic [ref=f7e382]:
+      - strong [ref=f7e383]: Подпишитесь на нашу рассылку
+      - paragraph [ref=f7e384]:
+        - text: Нажимая кнопку "Подписаться", я подтверждаю, что ознакомлен и согласен с
+        - link "Политикой конфиденциальности" [ref=f7e385] [cursor=pointer]:
+          - /url: /policy/
+        - text: и даю согласие на
+        - link "обработку моих персональных данных" [ref=f7e386] [cursor=pointer]:
+          - /url: /agreement/
+        - text: .
+    - generic [ref=f7e389]:
+      - textbox "Введите ваш E-mail" [ref=f7e391]
+      - button "Подписаться" [ref=f7e393] [cursor=pointer]
+  - contentinfo [ref=f7e394]:
+    - generic [ref=f7e397]:
+      - generic [ref=f7e399]:
+        - generic [ref=f7e400]:
+          - link "8 (800) 700 - 70 - 31" [ref=f7e401] [cursor=pointer]:
+            - /url: tel:88007007031
+          - link "8 (495) 775 - 20 - 08" [ref=f7e402] [cursor=pointer]:
+            - /url: tel:84957752008
+        - generic [ref=f7e403]:
+          - generic [ref=f7e404]: г. Москва, 2-я Звенигородская ул., 12, стр.1
+          - generic [ref=f7e405]: Пн - Пт 09:00 — 18:00
+          - link "info@stout.ru" [ref=f7e409] [cursor=pointer]:
+            - /url: mailto:info@stout.ru
+        - generic [ref=f7e410]:
+          - link [ref=f7e411] [cursor=pointer]:
+            - /url: https://www.youtube.com/c/stout_brand
+          - link [ref=f7e414] [cursor=pointer]:
+            - /url: https://rutube.ru/channel/24197391/
+          - link [ref=f7e422] [cursor=pointer]:
+            - /url: https://vk.com/stout_brand
+          - link [ref=f7e426] [cursor=pointer]:
+            - /url: http://www.ok.ru/stoutbrand
+          - link [ref=f7e432] [cursor=pointer]:
+            - /url: https://www.tiktok.com/@stout_brand
+          - link [ref=f7e436] [cursor=pointer]:
+            - /url: https://zen.yandex.ru/stout_brand
+      - strong [ref=f7e440]: STOUT
+      - strong [ref=f7e442]: Блог
+      - strong [ref=f7e444]: О нас
+      - strong [ref=f7e446]: Техподдержка
+    - generic [ref=f7e449]:
+      - generic [ref=f7e450]:
+        - generic [ref=f7e451]: © 2026. STOUT. Все права защищены.
+        - link "Карта сайта" [ref=f7e452] [cursor=pointer]:
+          - /url: /sitemap/
+      - link "Политика конфиденциальности и Cookie" [ref=f7e454] [cursor=pointer]:
+        - /url: /policy/
+      - link "Обработка персональных данных" [ref=f7e456] [cursor=pointer]:
+        - /url: /agreement/

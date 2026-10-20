@@ -5,7 +5,9 @@
     python sku_card.py 10311004 10311003
 """
 
+import queue
 import random
+import threading
 import time
 
 from playwright.sync_api import Page, sync_playwright
@@ -103,46 +105,78 @@ def already_scraped(item) -> bool:
     return False
 
 
-def run_for_numbers(auction_numbers: list[str]) -> None:
+def run_for_numbers(auction_numbers: list[str], worker_count: int = 1) -> None:
+    """worker_count — сколько браузеров открывают карточки одновременно."""
+    if worker_count < 1:
+        raise SystemExit("worker_count должен быть не меньше 1.")
+
     items = get_specification_items_by_auctions(auction_numbers)
     if not items:
         print("Нет позиций спецификации для этих закупок.")
         return
 
-    with sync_playwright() as playwright:
-        browser, page = create_browser(playwright)
-        try:
-            for index, item in enumerate(items, start=1):
-                print(f"\n[{index}] {item.auction_number} позиция {item.position_index}")
-                print(f"  {item.name}")
+    pending = queue.Queue()
+    for item in items:
+        print(f"\n{item.auction_number} позиция {item.position_index}")
+        print(f"  {item.name}")
+        if not item.sku_url:
+            print("  нет ссылки на карточку, оставляем как есть")
+            continue
+        if already_scraped(item):
+            print("  карточка уже снята, не открываю")
+            continue
+        pending.put(item)
 
-                if not item.sku_url:
-                    print("  нет ссылки на карточку, оставляем как есть")
-                    continue
+    if pending.empty():
+        return
 
-                if already_scraped(item):
-                    print("  карточка уже снята, не открываю")
-                    continue
+    browser_count = worker_count
+    if browser_count > pending.qsize():
+        browser_count = pending.qsize()
 
-                print(f"  URL: {item.sku_url}")
-                if scrape_and_save(page, item):
+    def worker(worker_number: int) -> None:
+        # Страницу Playwright нельзя отдать в другой поток: у каждого потока свой браузер.
+        with sync_playwright() as playwright:
+            browser, page = create_browser(playwright)
+            try:
+                while True:
+                    try:
+                        item = pending.get_nowait()
+                    except queue.Empty:
+                        return
+
+                    print(
+                        f"\nБраузер {worker_number}: {item.auction_number} "
+                        f"позиция {item.position_index}"
+                    )
+                    print(f"  URL: {item.sku_url}")
+                    if scrape_and_save(page, item):
+                        pause_between_purchases()
+                        continue
+
+                    cooldown = random.uniform(RESTART_WAIT_MIN_SEC, RESTART_WAIT_MAX_SEC)
+                    print(f"  пауза {cooldown:.1f} сек и вторая попытка")
+                    time.sleep(cooldown)
+                    browser.close()
+                    browser, page = create_browser(playwright)
+
+                    if scrape_and_save(page, item):
+                        pause_between_purchases()
+                        continue
+
+                    print("  вторая попытка не удалась, пропускаю позицию")
                     pause_between_purchases()
-                    continue
-
-                cooldown = random.uniform(RESTART_WAIT_MIN_SEC, RESTART_WAIT_MAX_SEC)
-                print(f"  пауза {cooldown:.1f} сек и вторая попытка")
-                time.sleep(cooldown)
+            finally:
                 browser.close()
-                browser, page = create_browser(playwright)
 
-                if scrape_and_save(page, item):
-                    pause_between_purchases()
-                    continue
-
-                print("  вторая попытка не удалась, пропускаю позицию")
-                pause_between_purchases()
-        finally:
-            browser.close()
+    print(f"Карточки: браузеров одновременно — {browser_count}.")
+    threads = []
+    for worker_number in range(1, browser_count + 1):
+        thread = threading.Thread(target=worker, args=(worker_number,))
+        thread.start()
+        threads.append(thread)
+    for thread in threads:
+        thread.join()
 
 
 def main() -> None:

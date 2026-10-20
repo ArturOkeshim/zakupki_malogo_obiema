@@ -1,0 +1,17 @@
+Found 1 match for /руб|₽|цена|price/:
+
+- generic [active] [ref=f17e1]:
+  - contentinfo [ref=f17e424]:
+    - generic [ref=f17e425]:
+      - generic [ref=f17e426]:
+        - generic [ref=f17e427]:
+          - group [ref=f17e473]:
+            - list [ref=f17e476]:
+              - listitem [ref=f17e491]:
+                - link "Модульные щитки" [ref=f17e492] [cursor=pointer]:
+                  - /url: /ru/catalog/1582/
+              - listitem [ref=f17e493]:
+                - link "Трубы электротехнические" [ref=f17e494] [cursor=pointer]:
+                  - /url: /ru/catalog/81/
+              - listitem [ref=f17e495]:
+                - link "Промышленная автоматизация" [ref=f17e496] [cursor=pointer]:

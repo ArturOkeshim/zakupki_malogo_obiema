@@ -14,19 +14,25 @@
 Локальный адрес 127.0.0.1 в прокси не отправляется.
 """
 
+import asyncio
 import json
 import os
 import sys
+import tempfile
 import time
-from contextlib import contextmanager
+from datetime import datetime
+from contextlib import asynccontextmanager, contextmanager
 from pathlib import Path
 
+import httpx
 from cursor_sdk import (
     AgentOptions,
+    AsyncClient,
     CursorAgentError,
     CursorClient,
     DefaultHttpxClient,
     LocalAgentOptions,
+    StdioMcpServerConfig,
 )
 import cursor_sdk._bridge as bridge_module
 from cursor_sdk.errors import CursorSDKError
@@ -37,10 +43,18 @@ BATCH_TXT_PATH = DATA_DIR / "batch.txt"
 RESPONSE_JSON_PATH = DATA_DIR / "response.json"
 ENV_PATH = PROJECT_ROOT / ".env"
 PROXY_PRELOAD_PATH = PROJECT_ROOT / "workaround" / "proxy_preload.cjs"
+# Ход поиска цен из пайплайна. Тестовый скрипт пишет в свой файл.
+PRICE_SEARCH_LOG_PATH = DATA_DIR / "price_search_log.txt"
+# Три агента пишут в один файл. Замок собирает строки одной позиции в один блок.
+_price_log_lock: asyncio.Lock | None = None
 
 # ЗАМЕТКА ДЛЯ ОБУЧЕНИЯ: модель — это «какой мозг» у агента.
 # composer-2.5 — обычный выбор для таких скриптов.
-MODEL_ID = "composer-2.5"
+MODEL_ID = "claude-haiku-5-5"
+
+
+class AgentStopped(Exception):
+    """Прогон агента оборвался. Этот работник должен остановиться, товар тут ни при чём."""
 
 
 def load_env_file(path: Path) -> None:
@@ -214,7 +228,14 @@ def prepare_agent_runtime() -> str:
     return api_key
 
 
-def make_agent_options(api_key: str) -> AgentOptions:
+def playwright_command() -> str:
+    # На Windows команда npx — это npx.cmd. CreateProcess без .cmd её не находит.
+    if sys.platform == "win32":
+        return "npx.cmd"
+    return "npx"
+
+
+def make_agent_options(api_key: str, browser_profile_dir: str) -> AgentOptions:
     return AgentOptions(
         api_key=api_key,
         model=MODEL_ID,
@@ -222,11 +243,31 @@ def make_agent_options(api_key: str) -> AgentOptions:
         # webSearch — встроенный поиск со сниппетами, без открытия сайта.
         # Его нет в списке инструментов, поэтому агент не может им «отделаться».
         disallowed_tools=["webSearch"],
+        # ЗАМЕТКА ДЛЯ ОБУЧЕНИЯ:
+        # .cursor/mcp.json поднимает один Playwright на всех. У него один профиль
+        # на проект, поэтому второе окно не открывается.
+        # Свой сервер на каждого агента и свой каталог профиля — это отдельный браузер.
+        mcp_servers={
+            "playwright": StdioMcpServerConfig(
+                command=playwright_command(),
+                # ЗАМЕТКА ДЛЯ ОБУЧЕНИЯ:
+                # @latest заставляет npx при каждом запуске спрашивать npm, нет ли новой версии.
+                # Точная версия берётся из кэша npx без похода в интернет.
+                # Обновлять версию — вручную, поменяв число здесь.
+                args=[
+                    "-y",
+                    "@playwright/mcp@0.0.83",
+                    # Без окна: браузер работает в фоне. Капча на Яндексе и Ozon от этого бывает чаще.
+                    "--headless",
+                    "--user-data-dir=" + browser_profile_dir,
+                ],
+            ),
+        },
         local=LocalAgentOptions(
             cwd=PROJECT_ROOT,
-            # "project" читает .cursor/mcp.json в этой папке (там Playwright).
-            # "user" читает ~/.cursor/mcp.json, если он есть.
-            setting_sources=["user", "project"],
+            # "user" — серверы из ~/.cursor/mcp.json, если они есть.
+            # "project" не берём: оттуда снова подключился бы общий Playwright.
+            setting_sources=["user"],
         ),
     )
 
@@ -290,26 +331,277 @@ def ask_on_bridge(client, api_key: str, prompt: str, retry_if_not_json: bool = F
     Второй agent.send идёт в тот же разговор. Агент помнит поиск
     и заново сайты не открывает — его просят только переписать ответ в JSON.
     """
-    options = make_agent_options(api_key)
-    with client.agents.create(options) as agent:
-        answer = collect_answer(agent.send(prompt))
-        if not retry_if_not_json:
-            if not answer.strip():
-                raise SystemExit("Пустой ответ агента.")
-            return answer
+    # Каталог живёт, пока открыт этот агент. У другого агента каталог другой.
+    with tempfile.TemporaryDirectory(prefix="playwright-agent-", ignore_cleanup_errors=True) as browser_profile_dir:
+        options = make_agent_options(api_key, browser_profile_dir)
+        with client.agents.create(options) as agent:
+            answer = collect_answer(agent.send(prompt))
+            if not retry_if_not_json:
+                if not answer.strip():
+                    raise SystemExit("Пустой ответ агента.")
+                return answer
 
-        if answer_is_json(answer):
-            return answer
+            if answer_is_json(answer):
+                return answer
 
-        print("Ответ не JSON. Прошу тот же агент вернуть только JSON, без нового поиска.")
-        DATA_DIR.mkdir(parents=True, exist_ok=True)
-        (DATA_DIR / "response_raw.txt").write_text(answer, encoding="utf-8")
-        retry_prompt = (
-            "Предыдущий ответ не является JSON. Не открывай сайты заново. "
-            "Верни только один JSON-объект по схеме из первого сообщения, "
-            "без markdown и без текста до и после."
-        )
-        return collect_answer(agent.send(retry_prompt))
+            print("Ответ не JSON. Прошу тот же агент вернуть только JSON, без нового поиска.")
+            DATA_DIR.mkdir(parents=True, exist_ok=True)
+            (DATA_DIR / "response_raw.txt").write_text(answer, encoding="utf-8")
+            retry_prompt = (
+                "Предыдущий ответ не является JSON. Не открывай сайты заново. "
+                "Верни только один JSON-объект по схеме из первого сообщения, "
+                "без markdown и без текста до и после."
+            )
+            return collect_answer(agent.send(retry_prompt))
+
+
+@asynccontextmanager
+async def async_agent_bridge():
+    """
+    Один мост для нескольких агентов сразу.
+
+    ЗАМЕТКА ДЛЯ ОБУЧЕНИЯ:
+    Обычный CursorClient синхронный: пока один агент ищет, второй не стартует.
+    AsyncClient умеет держать несколько агентов на одном мосте.
+    Смешивать эти два клиента в одном прогоне нельзя.
+    """
+    api_key = prepare_agent_runtime()
+    # trust_env=False: Python ходит к мосту на 127.0.0.1 напрямую, мимо HTTPS_PROXY.
+    # ЗАМЕТКА ДЛЯ ОБУЧЕНИЯ:
+    # timeout здесь — сколько httpx ждёт байты от моста на одном чтении.
+    # Агент с Playwright часто молчит дольше минуты (капча, долгая страница).
+    # При timeout=60 это выглядит как: Bridge request timed out: ReadTimeout.
+    # connect — только установка связи; read — ожидание ответа во время работы агента.
+    http_client = httpx.AsyncClient(
+        trust_env=False,
+        follow_redirects=True,
+        timeout=httpx.Timeout(connect=30.0, read=600.0, write=60.0, pool=60.0),
+    )
+    try:
+        try:
+            client = await AsyncClient.launch_bridge(
+                workspace=PROJECT_ROOT,
+                http_client=http_client,
+            )
+        except CursorAgentError as error:
+            raise SystemExit(
+                f"Агент не стартовал: {error.message}\n"
+                f"Можно повторить: {error.is_retryable}"
+            ) from error
+        async with client:
+            yield client, api_key
+    finally:
+        await http_client.aclose()
+
+
+def _as_text(value) -> str:
+    """Аргументы и ответы инструментов приходят словарём. В лог нужен читаемый текст."""
+    if value is None:
+        return ""
+    if isinstance(value, str):
+        return value
+    return json.dumps(value, ensure_ascii=False)
+
+
+def _opens_page(message) -> bool:
+    """Переход на новый адрес. Часто он называется mcp, а browser_navigate лежит в аргументах."""
+    if message.name == "browser_navigate":
+        return True
+    return "browser_navigate" in _as_text(message.args)
+
+
+def _clip_text(text: str, limit: int = 4000) -> str:
+    if len(text) <= limit:
+        return text
+    return text[:limit] + f"\n… обрезано, всего {len(text)} символов"
+
+
+def _usage_line(usage) -> str:
+    if usage is None:
+        return "токены: нет данных"
+    return (
+        "токены: "
+        f"input={usage.input_tokens}, "
+        f"output={usage.output_tokens}, "
+        f"cache_read={usage.cache_read_tokens}, "
+        f"cache_write={usage.cache_write_tokens}, "
+        f"reasoning={usage.reasoning_tokens}, "
+        f"total={usage.total_tokens}"
+    )
+
+
+def _log_message_line(message) -> str:
+    message_type = getattr(message, "type", "")
+
+    if message_type == "tool_call" and message.status == "running":
+        return f"вызов {message.name}: {_as_text(message.args)}"
+
+    if message_type == "tool_call" and message.status == "completed":
+        seen = _clip_text(_as_text(message.result).strip())
+        if not seen:
+            return ""
+        return f"увидено ({message.name}):\n{seen}"
+
+    if message_type == "thinking":
+        text = (message.text or "").strip()
+        if not text:
+            return ""
+        return f"размышление: {text}"
+
+    if message_type == "usage":
+        return _usage_line(message.usage)
+
+    if message_type == "status" and message.message:
+        return f"статус: {message.message}"
+
+    return ""
+
+
+async def _watch_run(run, lines: list[str], page_limit: int):
+    """
+    Собирает шаги прогона. page_limit — сколько адресов можно открыть.
+    0 значит: любой новый адрес сразу обрывает прогон.
+    """
+    opened_call_ids: set[str] = set()
+    hit_limit = False
+
+    async for message in run.messages():
+        line = _log_message_line(message)
+        if line:
+            lines.append(line)
+
+        if getattr(message, "type", "") != "tool_call" or message.status != "running":
+            continue
+        if not _opens_page(message):
+            continue
+        if message.call_id in opened_call_ids:
+            continue
+
+        opened_call_ids.add(message.call_id)
+        if len(opened_call_ids) <= page_limit:
+            continue
+
+        # Сообщение приходит, когда переход уже начался. cancel его обрывает.
+        lines.append(f"стоп: лимит страниц {page_limit}")
+        hit_limit = True
+        if run.supports("cancel"):
+            await run.cancel()
+        break
+
+    result = await run.wait()
+    return result, hit_limit
+
+
+async def _append_log_block(log_path: Path, text: str) -> None:
+    """Один блок на позицию. Пока пишем его, второй агент ждёт, строки не перемешиваются."""
+    global _price_log_lock
+    if _price_log_lock is None:
+        _price_log_lock = asyncio.Lock()
+
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    async with _price_log_lock:
+        with log_path.open("a", encoding="utf-8") as log_file:
+            log_file.write(text)
+
+
+@asynccontextmanager
+async def _one_agent_at_a_time(lock: asyncio.Lock | None):
+    """Очередь только на запуск. Сам поиск идёт параллельно, замок его не держит."""
+    if lock is None:
+        yield
+        return
+    async with lock:
+        yield
+
+
+async def ask_on_async_bridge(
+    client,
+    api_key: str,
+    prompt: str,
+    log_path: Path,
+    log_title: str,
+    page_limit: int = 3,
+    start_lock: asyncio.Lock | None = None,
+) -> tuple[str, str]:
+    """
+    Новый агент в уже открытом мосте. После ответа агент закрывается.
+
+    Возвращает (JSON-ответ, ход прогона). Ход — размышления, вызовы браузера и итог.
+    Больше page_limit адресов агент не откроет. Если лимит сработал или ответ
+    не JSON, тот же агент ещё раз пишет JSON и сайты заново не открывает.
+
+    start_lock — общая очередь запуска. Пока один агент создаётся и не получил
+    первый ответ моста, следующий ждёт. Дальше они ищут одновременно.
+    """
+    lines: list[str] = []
+    # Каталог живёт, пока открыт этот агент. У другого агента каталог другой.
+    with tempfile.TemporaryDirectory(prefix="playwright-agent-", ignore_cleanup_errors=True) as browser_profile_dir:
+        options = make_agent_options(api_key, browser_profile_dir)
+        agent_context = None
+        # ЗАМЕТКА ДЛЯ ОБУЧЕНИЯ:
+        # CreateAgent — короткий запрос с пределом 60 секунд.
+        # Три таких запроса разом мост не успевает, и SDK обрывает их по таймауту.
+        # Замок отпускаем после send: к этому моменту прогон уже начался,
+        # а следующий агент только тогда встаёт на создание.
+        if start_lock is not None and start_lock.locked():
+            print(f"Жду очередь на запуск: {log_title}")
+        async with _one_agent_at_a_time(start_lock):
+            print(f"Поднимаю агента: {log_title}")
+            agent_context = await client.agents.create(options)
+            agent = await agent_context.__aenter__()
+            try:
+                run = await agent.send(prompt)
+            except BaseException:
+                await agent_context.__aexit__(*sys.exc_info())
+                agent_context = None
+                raise
+            print(f"Агент запущен: {log_title}")
+
+        try:
+            result, hit_limit = await _watch_run(run, lines, page_limit)
+            need_json_only = hit_limit or not answer_is_json(result.result or "")
+            agent_broke = result.status != "finished" and not hit_limit
+            if agent_broke:
+                lines.append(f"прогон закончился со статусом {result.status}")
+                await _append_log_block(log_path, _log_block(log_title, lines, result))
+                raise AgentStopped(
+                    f"Агент закончил со статусом {result.status}, id={result.id}"
+                )
+
+            if need_json_only:
+                lines.append("Прошу JSON по уже открытым страницам, без нового поиска.")
+                retry_prompt = (
+                    "Новые страницы не открывай. "
+                    "Верни только один JSON-объект по схеме из первого сообщения, "
+                    "без markdown и без текста до и после."
+                )
+                retry_run = await agent.send(retry_prompt)
+                result, _hit_limit = await _watch_run(retry_run, lines, page_limit=0)
+                if result.status != "finished":
+                    lines.append(f"прогон закончился со статусом {result.status}")
+                    await _append_log_block(log_path, _log_block(log_title, lines, result))
+                    raise AgentStopped(
+                        f"Агент закончил со статусом {result.status}, id={result.id}"
+                    )
+        finally:
+            if agent_context is not None:
+                await agent_context.__aexit__(None, None, None)
+
+    agent_log = _log_block(log_title, lines, result)
+    await _append_log_block(log_path, agent_log)
+    return result.result or "", agent_log
+
+
+def _log_block(log_title: str, lines: list[str], result) -> str:
+    started_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    parts = [f"\n=== {started_at} | {log_title} ===\n"]
+    for line in lines:
+        parts.append(line + "\n")
+    parts.append("итог:\n")
+    parts.append((result.result or "") + "\n")
+    parts.append(_usage_line(result.usage) + "\n")
+    parts.append(f"длительность: {result.duration_ms} мс\n")
+    return "".join(parts)
 
 
 def ask_agent(prompt: str) -> str:
@@ -333,7 +625,7 @@ def cmd_run() -> None:
     if not BATCH_TXT_PATH.is_file():
         raise SystemExit(
             f"Нет файла {BATCH_TXT_PATH}\n"
-            "Сначала соберите батч: его пишет run_pipeline.py"
+            "Сначала соберите батч: python price_research.py export"
         )
 
     prompt = BATCH_TXT_PATH.read_text(encoding="utf-8")

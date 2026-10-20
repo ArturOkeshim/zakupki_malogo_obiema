@@ -16,11 +16,18 @@ def build_input_payload(pairs: list) -> dict:
 
         # В поиск кладём название, модель и производителя. Все характеристики туда не пишем:
         # запрос станет слишком узким и выдача будет пустой.
-        search_parts = [spec_item.name.strip()]
-        if spec_item.sku_model and spec_item.sku_model.strip():
-            search_parts.append(spec_item.sku_model.strip())
-        if spec_item.sku_manufacturer and spec_item.sku_manufacturer.strip():
-            search_parts.append(spec_item.sku_manufacturer.strip())
+        search_parts: list[str] = []
+        for part in (spec_item.name, spec_item.sku_model, spec_item.sku_manufacturer):
+            text = str(part or "").strip()
+            if not text:
+                continue
+            lowered = text.lower()
+            if any(
+                lowered in existing.lower() or existing.lower() in lowered
+                for existing in search_parts
+            ):
+                continue
+            search_parts.append(text)
         search_text = " ".join(search_parts)
 
         characteristics = []
@@ -47,7 +54,7 @@ def build_input_payload(pairs: list) -> dict:
                 ),
                 "tender_line_total": float(tender_total) if tender_total is not None else None,
                 "yandex_search_url": (
-                    "https://yandex.ru/search?products_mode=1&text="
+                    "https://market.yandex.ru/search?text="
                     + urllib.parse.quote(search_text)
                 ),
             }

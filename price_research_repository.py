@@ -118,9 +118,15 @@ def get_next_pending_items(
         return result
 
 
-def import_price_research_batch(payload: dict) -> tuple[int, list[str]]:
+def import_price_research_batch(
+    payload: dict,
+    agent_log: str | None = None,
+) -> tuple[int, list[str]]:
     """
     Сохраняет ответ нейросети. Возвращает (число обновлённых строк, auction_number для пересчёта).
+
+    agent_log — ход этого прогона: размышления, действия и вывод.
+    Его нет, когда JSON пришёл из файла, а не от агента.
     """
     items_payload = payload.get("items")
     if not isinstance(items_payload, list):
@@ -158,6 +164,8 @@ def import_price_research_batch(payload: dict) -> tuple[int, list[str]]:
             item.market_confidence = confidence
             item.market_item_type = row.get("item_type")
             item.market_note = row.get("note")
+            if agent_log:
+                item.market_agent_log = agent_log
             sources = row.get("sources")
             if sources is not None:
                 item.market_sources_json = json.dumps(sources, ensure_ascii=False)
