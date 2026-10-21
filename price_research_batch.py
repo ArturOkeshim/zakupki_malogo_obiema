@@ -210,6 +210,8 @@ def _is_model_code(text: str) -> bool:
         return False
     if not re.search(r"\d", compact):
         return False
+    if re.fullmatch(r"\d{5,}", compact):
+        return True
     return re.fullmatch(r"[\d\s*xх×.,/\-]+(мм|см|м)?", compact, flags=re.IGNORECASE) is None
 
 

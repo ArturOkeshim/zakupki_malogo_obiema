@@ -39,6 +39,7 @@ from ask_pydantic_agent import (
     reset_run_search_flags,
 )
 from export_profitable_excel import DEFAULT_OUTPUT_CLAUDE, export_to_excel, upsert_claude_auctions
+from price_http_fetch import lookup_http_price, remember_agent_price
 from price_research import (
     PROMPT_PATH_PYDANTIC,
     build_agent_prompt,
@@ -278,20 +279,36 @@ async def price_worker(
         started_at = datetime.now(timezone.utc)
         t0 = time.perf_counter()
         answer = None
+        agent_log = ""
+        http_hit = False
+        if item_links and item_kind != "service":
+            try:
+                found = await lookup_http_price(item, item_links)
+            except Exception as error:
+                print(f"  HTTP-цена, позиция {item.id}: {error}")
+                found = None
+            if found:
+                http_hit = True
+                answer, agent_log = found
+                print(
+                    f"Агент {worker_number}: позиция {item.id} закрыта по HTML, "
+                    "браузер не открываю"
+                )
         try:
-            answer, agent_log = await asyncio.wait_for(
-                ask_price(
-                    prompt,
-                    log_title=(
-                        f"позиция {item.id}, закупка {auction.auction_number}, {item.name}"
+            if not http_hit:
+                answer, agent_log = await asyncio.wait_for(
+                    ask_price(
+                        prompt,
+                        log_title=(
+                            f"позиция {item.id}, закупка {auction.auction_number}, {item.name}"
+                        ),
+                        page_limit=page_limit,
+                        worker_number=worker_number,
+                        skip_hosts=skip_hosts,
+                        skip_urls=skip_urls,
                     ),
-                    page_limit=page_limit,
-                    worker_number=worker_number,
-                    skip_hosts=skip_hosts,
-                    skip_urls=skip_urls,
-                ),
-                timeout=ITEM_TIMEOUT_SEC,
-            )
+                    timeout=ITEM_TIMEOUT_SEC,
+                )
         except asyncio.CancelledError:
             raise
         except asyncio.TimeoutError:
@@ -386,6 +403,8 @@ async def price_worker(
             agent_log,
             search_stage=item_stage,
         )
+        if saved and answer:
+            remember_agent_price(item, answer)
         duration_sec = time.perf_counter() - t0
         snapshot = _record_position_event(
             item=item,
